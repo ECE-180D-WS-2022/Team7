@@ -96,29 +96,30 @@ class Connection:
     async def select_device(self):
         print("Bluetooh LE hardware warming up...")
         await asyncio.sleep(2.0, loop=loop) # Wait for BLE to initialize.
-        devices = await BleakScanner.discover()
+        # devices = await BleakScanner.discover()
 
-        print("Please select device: ")
-        for i, device in enumerate(devices):
-            print(f"{i}: {device.name}")
+        # print("Please select device: ")
+        # for i, device in enumerate(devices):
+        #     print(f"{i}: {device.name}")
 
-        response = -1
-        while True:
-            response = input("Select device: ")
-            try:
-                response = int(response.strip())
-            except:
-                print("Please make valid selection.")
+        # response = -1
+        # while True:
+        #     response = input("Select device: ")
+        #     try:
+        #         response = int(response.strip())
+        #     except:
+        #         print("Please make valid selection.")
             
-            if response > -1 and response < len(devices):
-                break
-            else:
-                print("Please make valid selection.")
+        #     if response > -1 and response < len(devices):
+        #         break
+        #     else:
+        #         print("Please make valid selection.")
         
-        print(f"Connecting to {devices[response].name}")
-        self.connected_device = devices[response]
-        self.client = BleakClient(devices[response].address)
-        print("here")
+        # print(f"Connecting to {devices[response].name}")
+        # self.connected_device = devices[response]
+        # self.client = BleakClient(devices[response].address)
+        self.client = BleakClient("E8:1B:8C:C4:B0:B5")
+        # print("here")
 
 
 
