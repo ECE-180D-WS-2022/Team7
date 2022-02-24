@@ -56,8 +56,8 @@ class Connection:
         if self.connected:
             return
         try:
-            print("here now")
-            print(self.client)
+            # print("here now")
+            # print(self.client)
             await self.client.connect()
             print("client was connected")
             # self.connected = await self.client.is_connected()
