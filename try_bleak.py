@@ -2,6 +2,7 @@ import asyncio
 from bleak import BleakScanner
 from bleak import BleakClient
 import logging
+import struct
 
 logger = logging.getLogger(__name__)
 
@@ -34,11 +35,13 @@ class Connection:
 
     def max_x_characteristic_handler(self, sender: str, data: bytearray):
         print("X value:")
-        print(data)
+        clean_data = struct.unpack('f', data)
+        print(clean_data)
 
     def max_z_characteristic_handler(self, sender: str, data: bytearray):
         print("Z value:")
-        print(data)
+        clean_data = struct.unpack('f', data)
+        print(clean_data)
 
     async def manager(self):
         print("Starting connection manager.")
@@ -63,35 +66,6 @@ class Connection:
                 print(f"Connected to {self.connected_device.name}")
                 self.client.set_disconnected_callback(self.on_disconnect)
 
-                for service in self.client.services:
-                    logger.info(f"[Service] {service}")
-                    for char in service.characteristics:
-                        if "read" in char.properties:
-                            try:
-                                value = bytes(await self.client.read_gatt_char(char.uuid))
-                                logger.info(
-                                    f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}"
-                                )
-                            except Exception as e:
-                                logger.error(
-                                    f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {e}"
-                                )
-
-                        else:
-                            value = None
-                            logger.info(
-                                f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}"
-                            )
-
-                        for descriptor in char.descriptors:
-                            try:
-                                value = bytes(
-                                    await self.client.read_gatt_descriptor(descriptor.handle)
-                                )
-                                logger.info(f"\t\t[Descriptor] {descriptor}) | Value: {value}")
-                            except Exception as e:
-                                logger.error(f"\t\t[Descriptor] {descriptor}) | Value: {e}")
-                    
                 await self.client.start_notify(
                     self.max_x_characteristic, self.max_x_characteristic_handler,
                 )
