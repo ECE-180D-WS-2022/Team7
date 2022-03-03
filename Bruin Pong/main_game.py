@@ -151,48 +151,6 @@ def display_score():
 #        return False
 #    else: return True
 
-# start of main code
-pygame.init()
-screen = pygame.display.set_mode((800,400))
-pygame.display.set_caption('Bruin Pong')
-clock = pygame.time.Clock()
-test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
-game_active = False
-start_time = 0
-score = 0
-#bg_music = pygame.mixer.Sound('audio/music.wav')
-#bg_music.play(loops = -1)
-
-#Groups
-player = pygame.sprite.GroupSingle()
-player.add(Player())
-
-ball = pygame.sprite.GroupSingle()
-cup_group = pygame.sprite.Group()
-
-sky_surface = pygame.image.load('graphics/Sky.png').convert()
-ground_surface = pygame.image.load('graphics/ground.png').convert()
-
-# Intro screen
-player_stand = pygame.image.load('graphics/player/player_stand.png').convert_alpha()
-player_stand = pygame.transform.rotozoom(player_stand,0,2)
-player_stand_rect = player_stand.get_rect(center = (400,200))
-
-game_name = test_font.render('Bruin Pong',False,(111,196,169))
-game_name_rect = game_name.get_rect(center = (400,80))
-
-game_message = test_font.render('Press space to start',False,(111,196,169))
-game_message_rect = game_message.get_rect(center = (400,330))
-
-# Timer
-ball_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(ball_timer,1500)
-
-# global variables
-is_throw = False
-time = 0
-
-
 
 class Connection:
     
@@ -310,6 +268,47 @@ class Connection:
         print("here")
 
     async def play_game(self):
+        # start of main code
+        pygame.init()
+        screen = pygame.display.set_mode((800,400))
+        pygame.display.set_caption('Bruin Pong')
+        clock = pygame.time.Clock()
+        test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
+        globalgame_active = False
+        start_time = 0
+        score = 0
+        #bg_music = pygame.mixer.Sound('audio/music.wav')
+        #bg_music.play(loops = -1)
+
+        #Groups
+        player = pygame.sprite.GroupSingle()
+        player.add(Player())
+
+        ball = pygame.sprite.GroupSingle()
+        cup_group = pygame.sprite.Group()
+
+        sky_surface = pygame.image.load('graphics/Sky.png').convert()
+        ground_surface = pygame.image.load('graphics/ground.png').convert()
+
+        # Intro screen
+        player_stand = pygame.image.load('graphics/player/player_stand.png').convert_alpha()
+        player_stand = pygame.transform.rotozoom(player_stand,0,2)
+        player_stand_rect = player_stand.get_rect(center = (400,200))
+
+        game_name = test_font.render('Bruin Pong',False,(111,196,169))
+        game_name_rect = game_name.get_rect(center = (400,80))
+
+        game_message = test_font.render('Press space to start',False,(111,196,169))
+        game_message_rect = game_message.get_rect(center = (400,330))
+
+        # Timer
+        ball_timer = pygame.USEREVENT + 1
+        pygame.time.set_timer(ball_timer,1500)
+
+        # global variables
+        is_throw = False
+        time = 0
+
         while True:
             for event in pygame.event.get():
                 # terminate application
