@@ -190,14 +190,21 @@ class Connection:
 
     async def manager(self):
         print("Starting connection manager.")
-        while True:
-            if self.client:
-                await self.connect()
-                await asyncio.sleep(5.0, loop=loop)
+        # while True:
+        if self.client:
+            await self.connect()
+            await asyncio.sleep(5.0, loop=loop)
+
+            while True:
+                for service in self.client.services:
+                    for char in service.characteristics:
+                        if "read" in char.properties:
+                            value = bytes(await self.client.read_gatt_char(char.uuid))
+                            print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
                 await self.play_game()
-            else:
-                await self.select_device()
-                await asyncio.sleep(15.0, loop=loop) 
+        else:
+            await self.select_device()
+            await asyncio.sleep(15.0, loop=loop) 
 
     async def connect(self):
         if self.connected:
