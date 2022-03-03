@@ -259,15 +259,15 @@ class Connection:
                 await self.client.start_notify(
                     self.max_z_characteristic, self.max_z_characteristic_handler,
                 )
-                while True:
-                    if not self.connected:
-                        break
-                    for service in self.client.services:
-                        for char in service.characteristics:
-                            if "read" in char.properties:
-                                value = bytes(await self.client.read_gatt_char(char.uuid))
-                                print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
-                    await asyncio.sleep(5.0, loop=loop)
+                # while True:
+                if not self.connected:
+                    break
+                for service in self.client.services:
+                    for char in service.characteristics:
+                        if "read" in char.properties:
+                            value = bytes(await self.client.read_gatt_char(char.uuid))
+                            print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
+                await asyncio.sleep(5.0, loop=loop)
                     
             else:
                 print(f"Failed to connect to {self.connected_device.name}")
