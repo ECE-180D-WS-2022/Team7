@@ -235,6 +235,7 @@ class Connection:
         while True:
             if self.client:
                 await self.connect()
+                await asyncio.sleep(5.0, loop=loop)
                 self.play_game()
             else:
                 await self.select_device()
