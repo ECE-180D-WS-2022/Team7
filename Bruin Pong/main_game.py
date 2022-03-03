@@ -274,7 +274,7 @@ class Connection:
         pygame.display.set_caption('Bruin Pong')
         clock = pygame.time.Clock()
         test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
-        globalgame_active = False
+        game_active = False
         start_time = 0
         score = 0
         #bg_music = pygame.mixer.Sound('audio/music.wav')
@@ -383,6 +383,7 @@ class Connection:
 
 #if command=='start': 
 def choose_level():
+    mode = 0
     print('Game launching')
     # time.sleep(1)
     print('Choose Game Mode')
@@ -451,6 +452,8 @@ def choose_level():
                             cv2.putText(frame, "Game mode: Venus", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                             mode = 4
                             count = count + 1
+                    else:
+                        mode = 0
 
 
         cv2.imshow("Frame", frame)
@@ -483,8 +486,9 @@ if __name__ == "__main__":
     connection = Connection(
         loop, max_x_characteristic, max_z_characteristic,)
     try:
-        asyncio.ensure_future(connection.play_game())
+        
         asyncio.ensure_future(connection.manager())
+        asyncio.ensure_future(connection.play_game())
         # asyncio.ensure_future(user_console_manager(connection))
         loop.run_forever()
     except KeyboardInterrupt:
