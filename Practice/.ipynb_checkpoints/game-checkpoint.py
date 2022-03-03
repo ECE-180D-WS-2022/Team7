@@ -178,8 +178,8 @@ while True:
                 start_time = int(pygame.time.get_ticks())
                 power = PowerBar()
                 cup_group.add(Cup(500))
-                #cup_group.add(Cup(600))
-                #cup_group.add(Cup(700))
+                cup_group.add(Cup(600))
+                cup_group.add(Cup(700))
 
     # update game page
     if game_active:
