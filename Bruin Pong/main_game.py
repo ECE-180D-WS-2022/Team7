@@ -260,8 +260,8 @@ class Connection:
                     self.max_z_characteristic, self.max_z_characteristic_handler,
                 )
                 # while True:
-                if not self.connected:
-                    break
+                # if not self.connected:
+                #     break
                 for service in self.client.services:
                     for char in service.characteristics:
                         if "read" in char.properties:
