@@ -55,20 +55,34 @@ class Cup(pygame.sprite.Sprite):
 
 
 class Ball(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, mode):
         super().__init__()
         
         ball = pygame.image.load('graphics/ball/ball.png').convert_alpha()
         self.image = ball
         self.rect = self.image.get_rect(midbottom = (100,300))
+        self.mode = mode
 
     def ball_path(self,power,time):
-        angle = 0.785
+        #angle = 0.785
+        angle = 0.9
         vel = power/1.25+20
         vel_x = vel * cos(angle)
         vel_y = vel * sin(angle)
         dist_x = vel_x * time
-        dist_y = (vel_y * time) + ((-9.8 * (time)**2)/2)
+        
+        if self.mode == 1: 
+            gravity = -4
+        elif self.mode == 2:
+            gravity = -9.8
+        elif self.mode == 3: 
+            gravity = -20
+        elif self.mode == 4:
+            gravity = -8
+        
+        dist_y = (vel_y * time) + ((gravity * (time)**2)/2)
+        
+        
         self.rect.midbottom = (round(dist_x + 100),round(-1*dist_y + 300))
 
     def destroy(self):
@@ -106,6 +120,12 @@ def display_score():
     score_rect = score_surf.get_rect(center = (400,50))
     screen.blit(score_surf,score_rect)
     return current_time
+
+def collision_sprite():
+    if pygame.sprite.spritecollide(ball.sprite,cup_group,False):
+        return True
+    else:
+        return False
 
 #def collision_sprite():
 #    if pygame.sprite.spritecollide(.sprite,obstacle_group,False):
@@ -167,7 +187,8 @@ while True:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 is_throw = True
                 time = 0
-                ball.add(Ball())
+                ball.add(Ball(3))
+                
         
         # on home page, press space to enter game page
         else:
@@ -178,8 +199,8 @@ while True:
                 start_time = int(pygame.time.get_ticks())
                 power = PowerBar()
                 cup_group.add(Cup(500))
-                #cup_group.add(Cup(600))
-                #cup_group.add(Cup(700))
+                cup_group.add(Cup(550))
+                cup_group.add(Cup(600))
 
     # update game page
     if game_active:
@@ -200,6 +221,9 @@ while True:
             ball.draw(screen)
             ball.update(power.ret_power(),time)
             time += 0.05
+            #if collision_sprite(): 
+            #    print('hit')
+                
             # if the ball is deleted
             if not ball:
                 is_throw = False
