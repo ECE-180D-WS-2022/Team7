@@ -207,6 +207,8 @@ class Connection:
         self.loop = loop
         self.max_x_characteristic = max_x_characteristic
         self.max_z_characteristic = max_z_characteristic
+
+        self.velocity = 0
         
         # Device state
         self.connected = False
@@ -241,9 +243,13 @@ class Connection:
                     for service in self.client.services:
                         for char in service.characteristics:
                             if "read" in char.properties:
-                                value = bytes(await self.client.read_gatt_char(char.uuid))
-                                # print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
-                                print(struct.unpack('f', value))
+                                if char == max_x_characteristic:
+                                    value = bytes(await self.client.read_gatt_char(char.uuid))
+                                    # print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
+                                    max_x = struct.unpack('f', value)
+                                    if max_x != self.velocity:
+                                        self.velocity = max_x
+                                    print('velocity = ', self.velocity)
                     # await self.play_game()
             else:
                 await self.select_device()
