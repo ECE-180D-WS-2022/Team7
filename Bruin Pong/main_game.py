@@ -242,7 +242,8 @@ class Connection:
                         for char in service.characteristics:
                             if "read" in char.properties:
                                 value = bytes(await self.client.read_gatt_char(char.uuid))
-                                print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
+                                # print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
+                                print(struct.unpack('f', value))
                     # await self.play_game()
             else:
                 await self.select_device()
