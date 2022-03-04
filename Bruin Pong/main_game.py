@@ -18,6 +18,25 @@ import urllib
 # import speech_recognition as sr
 import time
 
+import paho.mqtt.client as mqtt
+
+def on_connect(client, userdata, flags, rc):
+    print("Connection returned result: "+str(rc))
+
+def on_disconnect(client, userdata, rc): 
+    if rc != 0:     
+        print('Unexpected Disconnect')
+    else:
+        print('Expected Disconnect')
+
+global mqtt_client
+mqtt_client = mqtt.Client()
+mqtt_client.on_connect = on_connect
+mqtt_client.on_disconnect = on_disconnect
+mqtt_client.connect_async("test.mosquitto.org")
+mqtt_client.loop_start()
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -250,6 +269,10 @@ class Connection:
                                     if max_x != self.velocity:
                                         self.velocity = max_x
                                     print('velocity = ', self.velocity)
+                                    global mqtt_client
+                                    mqtt_client.publish('ece180d/team7/pygame', self.velocity, qos=1)
+
+                                    
                     # await self.play_game()
             else:
                 await self.select_device()
