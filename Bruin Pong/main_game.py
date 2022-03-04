@@ -232,30 +232,21 @@ class Connection:
 
     async def manager(self):
         print("Starting connection manager.")
-<<<<<<< HEAD
         while True:
             if self.client:
                 await self.connect()
+                await asyncio.sleep(5.0, loop=loop)
+
+                while True:
+                    for service in self.client.services:
+                        for char in service.characteristics:
+                            if "read" in char.properties:
+                                value = bytes(await self.client.read_gatt_char(char.uuid))
+                                print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
+                    # await self.play_game()
             else:
                 await self.select_device()
                 await asyncio.sleep(15.0, loop=loop) 
-=======
-        # while True:
-        if self.client:
-            await self.connect()
-            await asyncio.sleep(5.0, loop=loop)
-
-            while True:
-                for service in self.client.services:
-                    for char in service.characteristics:
-                        if "read" in char.properties:
-                            value = bytes(await self.client.read_gatt_char(char.uuid))
-                            print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
-                await self.play_game()
-        else:
-            await self.select_device()
-            await asyncio.sleep(15.0, loop=loop) 
->>>>>>> 06b6871e59ef63ec1ad34942c649f3a24a75c2eb
 
     async def connect(self):
         if self.connected:
@@ -277,15 +268,15 @@ class Connection:
                 await self.client.start_notify(
                     self.max_z_characteristic, self.max_z_characteristic_handler,
                 )
-                while True:
-                    if not self.connected:
-                        break
-                    for service in self.client.services:
-                        for char in service.characteristics:
-                            if "read" in char.properties:
-                                value = bytes(await self.client.read_gatt_char(char.uuid))
-                                print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
-                    await asyncio.sleep(5.0, loop=loop)
+                # while True:
+                #     if not self.connected:
+                #         break
+                #     for service in self.client.services:
+                #         for char in service.characteristics:
+                #             if "read" in char.properties:
+                #                 value = bytes(await self.client.read_gatt_char(char.uuid))
+                #                 print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
+                #     await asyncio.sleep(5.0, loop=loop)
                     
             else:
                 print(f"Failed to connect to {self.connected_device.name}")
@@ -326,8 +317,6 @@ class Connection:
         print("here")
 
     async def play_game(self):
-<<<<<<< HEAD
-=======
         # start of main code
         pygame.init()
         screen = pygame.display.set_mode((800,400))
@@ -369,7 +358,6 @@ class Connection:
         is_throw = False
         time = 0
 
->>>>>>> 06b6871e59ef63ec1ad34942c649f3a24a75c2eb
         while True:
             for event in pygame.event.get():
                 # terminate application
