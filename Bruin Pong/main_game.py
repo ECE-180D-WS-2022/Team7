@@ -537,7 +537,7 @@ if __name__ == "__main__":
     try:
         
         asyncio.ensure_future(connection.manager())
-        asyncio.ensure_future(connection.play_game())
+        # asyncio.ensure_future(connection.play_game())
         # asyncio.ensure_future(user_console_manager(connection))
         loop.run_forever()
     except KeyboardInterrupt:
