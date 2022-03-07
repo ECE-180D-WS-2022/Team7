@@ -258,19 +258,6 @@ class Connection:
                 await self.connect()
                 await asyncio.sleep(5.0, loop=loop)
 
-                while True:
-                    for service in self.client.services:
-                        for char in service.characteristics:
-                            if "read" in char.properties:
-                                if char == max_x_characteristic:
-                                    value = bytes(await self.client.read_gatt_char(char.uuid))
-                                    # print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
-                                    max_x = struct.unpack('f', value)
-                                    if max_x != self.velocity:
-                                        self.velocity = max_x
-                                    print('velocity = ', self.velocity)
-                                    global mqtt_client
-                                    mqtt_client.publish('ece180d/team7/pygame', self.velocity, qos=1)
 
                                     
                     # await self.play_game()
@@ -298,6 +285,20 @@ class Connection:
                 await self.client.start_notify(
                     self.max_z_characteristic, self.max_z_characteristic_handler,
                 )
+                while True:
+                    for service in self.client.services:
+                        for char in service.characteristics:
+                            if "read" in char.properties:
+                                if char == max_x_characteristic:
+                                    value = bytes(await self.client.read_gatt_char(char.uuid))
+                                    # print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
+                                    max_x = struct.unpack('f', value)
+                                    if max_x != self.velocity:
+                                        self.velocity = max_x
+                                    print('velocity = ', self.velocity)
+                                    global mqtt_client
+                                    mqtt_client.publish('ece180d/team7/pygame', self.velocity, qos=1)
+
                 # while True:
                 #     if not self.connected:
                 #         break
