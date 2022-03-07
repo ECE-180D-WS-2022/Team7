@@ -291,10 +291,12 @@ class Connection:
                             if "read" in char.properties:
                                 # print(char)
                                 # print(max_x_characteristic)
-                                if str(char) == max_x_characteristic:
+                                # if str(char) == max_x_characteristic:
                                     value = bytes(await self.client.read_gatt_char(char.uuid))
                                     # print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
                                     max_x = struct.unpack('f', value)
+                                    if max_x > 4:
+                                        continue
                                     if max_x != self.velocity:
                                         self.velocity = max_x
                                     print('velocity = ', self.velocity)
