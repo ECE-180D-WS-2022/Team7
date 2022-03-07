@@ -279,12 +279,12 @@ class Connection:
                 print(f"Connected to {self.connected_device.name}")
                 self.client.set_disconnected_callback(self.on_disconnect)
 
-                await self.client.start_notify(
-                    self.max_x_characteristic, self.max_x_characteristic_handler,
-                )
-                await self.client.start_notify(
-                    self.max_z_characteristic, self.max_z_characteristic_handler,
-                )
+                # await self.client.start_notify(
+                #     self.max_x_characteristic, self.max_x_characteristic_handler,
+                # )
+                # await self.client.start_notify(
+                #     self.max_z_characteristic, self.max_z_characteristic_handler,
+                # )
                 while True:
                     for service in self.client.services:
                         for char in service.characteristics:
