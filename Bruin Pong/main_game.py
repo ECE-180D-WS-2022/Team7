@@ -302,7 +302,9 @@ class Connection:
                                         self.velocity = max_x
                                         print('velocity = ', self.velocity)
                                         global mqtt_client
-                                        mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
+                                        print(mqtt_client)
+                                        if mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1) == 0:
+                                            print ('published successfully')
 
                 # while True:
                 #     if not self.connected:
