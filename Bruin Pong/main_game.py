@@ -303,6 +303,7 @@ class Connection:
                                         print('velocity = ', self.velocity)
                                         global mqtt_client
                                         print(mqtt_client)
+                                        mqtt_client.connect_async("test.mosquitto.org")
                                         publish_result = mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
                                         print(publish_result)
                                             # print ('published successfully')
