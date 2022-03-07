@@ -289,9 +289,9 @@ class Connection:
                     for service in self.client.services:
                         for char in service.characteristics:
                             if "read" in char.properties:
-                                print(char)
-                                print(max_x_characteristic)
-                                if char == max_x_characteristic:
+                                # print(char)
+                                # print(max_x_characteristic)
+                                if str(char) == max_x_characteristic:
                                     value = bytes(await self.client.read_gatt_char(char.uuid))
                                     # print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
                                     max_x = struct.unpack('f', value)
