@@ -257,6 +257,7 @@ class Connection:
                                 if max_x != self.velocity:
                                     self.velocity = max_x
                                     print('velocity = ', self.velocity)
+                                    self.mqtt_client.reconnect()
                                     publish_result = self.mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
                                     print(publish_result)
                                     # async with Client("test.mosquitto.org") as mqtt_client:
@@ -447,8 +448,8 @@ if __name__ == "__main__":
     mqtt_client = mqtt.Client()
     mqtt_client.on_connect = on_connect
     mqtt_client.on_disconnect = on_disconnect
-    # mqtt_client.connect_async("test.mosquitto.org")
-    mqtt_client.connect("test.mosquitto.org")
+    mqtt_client.connect_async("test.mosquitto.org")
+    # mqtt_client.connect_srv("mqtt.eclipseprojects.io")
     mqtt_client.loop_start()
     
 
