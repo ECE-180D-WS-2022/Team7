@@ -37,6 +37,8 @@ mqtt_client.connect_async("test.mosquitto.org")
 mqtt_client.loop_start()
 
 
+# publish_result = mqtt_client.publish('ece180d/team7/pygame', '2', qos=1)
+
 logger = logging.getLogger(__name__)
 
 
@@ -304,6 +306,7 @@ class Connection:
                                         global mqtt_client
                                         print(mqtt_client)
                                         mqtt_client.connect_async("test.mosquitto.org")
+                                        mqtt_client.loop_start()
                                         publish_result = mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
                                         print(publish_result)
                                             # print ('published successfully')
