@@ -303,8 +303,9 @@ class Connection:
                                     if max_x != self.velocity:
                                         self.velocity = max_x
                                         print('velocity = ', self.velocity)
-                                        global mqtt_client
-                                        print(mqtt_client)
+                                        # global mqtt_client
+                                        # print(mqtt_client)
+                                        mqtt_client = mqtt.Client()
                                         mqtt_client.connect_async("test.mosquitto.org")
                                         mqtt_client.loop_start()
                                         publish_result = mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
