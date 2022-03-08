@@ -34,6 +34,11 @@ def on_disconnect(client, userdata, rc):
     else:
         print('Expected Disconnect')
 
+mqtt_client = mqtt.Client()
+mqtt_client.on_connect = on_connect
+mqtt_client.on_disconnect = on_disconnect
+mqtt_client.connect_async("test.mosquitto.org")
+
 '''
 global mqtt_client
 mqtt_client = mqtt.Client()
@@ -445,10 +450,7 @@ if __name__ == "__main__":
     game_mode = choose_level()
     print(game_mode)
 
-    mqtt_client = mqtt.Client()
-    mqtt_client.on_connect = on_connect
-    mqtt_client.on_disconnect = on_disconnect
-    mqtt_client.connect_async("test.mosquitto.org")
+    
     # mqtt_client.connect_srv("mqtt.eclipseprojects.io")
     mqtt_client.loop_start()
     
