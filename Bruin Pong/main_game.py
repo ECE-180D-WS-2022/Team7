@@ -447,7 +447,8 @@ if __name__ == "__main__":
     mqtt_client = mqtt.Client()
     mqtt_client.on_connect = on_connect
     mqtt_client.on_disconnect = on_disconnect
-    mqtt_client.connect_async("test.mosquitto.org")
+    # mqtt_client.connect_async("test.mosquitto.org")
+    mqtt_client.connect("test.mosquitto.org")
     mqtt_client.loop_start()
     
 
