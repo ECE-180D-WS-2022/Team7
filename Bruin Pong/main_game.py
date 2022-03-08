@@ -221,7 +221,7 @@ class Connection:
                 await self.connect()
                 await asyncio.sleep(5.0, loop=loop)
 
-                if self.connected():
+                if self.connected:
                     while True:
                         for service in self.client.services:
                             for char in service.characteristics:
