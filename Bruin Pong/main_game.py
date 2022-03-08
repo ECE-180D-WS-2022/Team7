@@ -444,33 +444,33 @@ def choose_level():
     # game mode 4: Venus (purple)
     return mode
 
-if __name__ == "__main__":
-    logger = logging.getLogger(__name__)
-    logging.basicConfig(level=logging.INFO)
-    game_mode = choose_level()
-    print(game_mode)
+# if __name__ == "__main__":
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+game_mode = choose_level()
+print(game_mode)
 
-    
-    # mqtt_client.connect_srv("mqtt.eclipseprojects.io")
-    mqtt_client.loop_start()
-    
 
-    loop = asyncio.get_event_loop()
-    max_x_characteristic = "00001142-0000-1000-8000-00805f9b34fb"
-    max_z_characteristic = "00001143-0000-1000-8000-00805f9b34fb"
+# mqtt_client.connect_srv("mqtt.eclipseprojects.io")
+mqtt_client.loop_start()
+
+
+loop = asyncio.get_event_loop()
+max_x_characteristic = "00001142-0000-1000-8000-00805f9b34fb"
+max_z_characteristic = "00001143-0000-1000-8000-00805f9b34fb"
+
+
+connection = Connection(
+    loop, max_x_characteristic, max_z_characteristic, mqtt_client)
+try:
     
-    
-    connection = Connection(
-        loop, max_x_characteristic, max_z_characteristic, mqtt_client)
-    try:
-        
-        asyncio.ensure_future(connection.manager())
-        # asyncio.ensure_future(connection.play_game())
-        # asyncio.ensure_future(user_console_manager(connection))
-        loop.run_forever()
-    except KeyboardInterrupt:
-        print()
-        print("User stopped program.")
-    finally:
-        print("Disconnecting...")
-        loop.run_until_complete(connection.cleanup())
+    asyncio.ensure_future(connection.manager())
+    # asyncio.ensure_future(connection.play_game())
+    # asyncio.ensure_future(user_console_manager(connection))
+    loop.run_forever()
+except KeyboardInterrupt:
+    print()
+    print("User stopped program.")
+finally:
+    print("Disconnecting...")
+    loop.run_until_complete(connection.cleanup())
