@@ -34,9 +34,14 @@ def on_disconnect(client, userdata, rc):
     else:
         print('Expected Disconnect')
 
+def on_message(client, userdata, message): 
+  print('Received message: "' + str(message.payload) + '" on topic "' + 
+        message.topic + '" with QoS ' + str(message.qos))
+
 mqtt_client = mqtt.Client("", True, None, mqtt.MQTTv31)
 mqtt_client.on_connect = on_connect
 mqtt_client.on_disconnect = on_disconnect
+mqtt_client.on_message = on_message
 mqtt_client.connect_async("test.mosquitto.org")
 mqtt_client.loop_start()
 
