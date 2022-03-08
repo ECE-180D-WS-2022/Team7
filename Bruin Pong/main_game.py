@@ -184,12 +184,12 @@ class Connection:
         loop: asyncio.AbstractEventLoop,
         max_x_characteristic: str,
         max_z_characteristic: str,
-        # mqtt_client
+        mqtt_client
     ):
         self.loop = loop
         self.max_x_characteristic = max_x_characteristic
         self.max_z_characteristic = max_z_characteristic
-        # self.mqtt_client = mqtt_client
+        self.mqtt_client = mqtt_client
         self.velocity = 0
         
         # Device state
@@ -254,8 +254,10 @@ class Connection:
                                 if max_x != self.velocity:
                                     self.velocity = max_x
                                     print('velocity = ', self.velocity)
-                                    async with Client("test.mosquitto.org") as mqtt_client:
-                                        await mqtt_client.publish("ece180d/team7/pygame", self.velocity[0], qos=1)
+                                    publish_result = self.mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
+                                    print(publish_result)
+                                    # async with Client("test.mosquitto.org") as mqtt_client:
+                                    #     await mqtt_client.publish("ece180d/team7/pygame", self.velocity[0], qos=1)
                                     # await self.publish_velocity()
                 # await self.client.start_notify(
                 #     self.max_x_characteristic, self.max_x_characteristic_handler,
@@ -438,18 +440,20 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     game_mode = choose_level()
     print(game_mode)
+
+    mqtt_client = mqtt.Client()
+    mqtt_client.on_connect = on_connect
+    mqtt_client.on_disconnect = on_disconnect
+    mqtt_client.connect_async("test.mosquitto.org")
+    mqtt_client.loop_start()
+
     loop = asyncio.get_event_loop()
     max_x_characteristic = "00001142-0000-1000-8000-00805f9b34fb"
     max_z_characteristic = "00001143-0000-1000-8000-00805f9b34fb"
     
-    # mqtt_client = mqtt.Client()
-    # mqtt_client.on_connect = on_connect
-    # mqtt_client.on_disconnect = on_disconnect
-    # mqtt_client.connect_async("test.mosquitto.org")
-    # mqtt_client.loop_start()
     
     connection = Connection(
-        loop, max_x_characteristic, max_z_characteristic)
+        loop, max_x_characteristic, max_z_characteristic, mqtt_client)
     try:
         
         asyncio.ensure_future(connection.manager())
