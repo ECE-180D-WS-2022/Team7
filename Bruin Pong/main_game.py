@@ -221,17 +221,6 @@ class Connection:
                 await self.connect()
                 await asyncio.sleep(5.0, loop=loop)
 
-                if self.connected:
-                    while True:
-                        for service in self.client.services:
-                            for char in service.characteristics:
-                                if "read" in char.properties:
-                                    value = bytes(await self.client.read_gatt_char(char.uuid))
-                                    max_x = struct.unpack('f', value)
-                                    if max_x != self.velocity:
-                                        self.velocity = max_x
-                                        print('velocity = ', self.velocity)
-                                        await self.publish_velocity()
                     # await self.play_game()
             else:
                 await self.select_device()
@@ -256,6 +245,16 @@ class Connection:
                 print(f"Connected to {self.connected_device.name}")
                 self.client.set_disconnected_callback(self.on_disconnect)
 
+                while True:
+                    for service in self.client.services:
+                        for char in service.characteristics:
+                            if "read" in char.properties:
+                                value = bytes(await self.client.read_gatt_char(char.uuid))
+                                max_x = struct.unpack('f', value)
+                                if max_x != self.velocity:
+                                    self.velocity = max_x
+                                    print('velocity = ', self.velocity)
+                                    await self.publish_velocity()
                 # await self.client.start_notify(
                 #     self.max_x_characteristic, self.max_x_characteristic_handler,
                 # )
