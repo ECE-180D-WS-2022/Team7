@@ -24,6 +24,9 @@ from asyncio_mqtt import Client, MqttError
 
 def on_connect(client, userdata, flags, rc):
     print("Connection returned result: "+str(rc))
+    if rc != 0:
+        print("connection failed")
+        quit()
 
 def on_disconnect(client, userdata, rc): 
     if rc != 0:     
@@ -446,6 +449,7 @@ if __name__ == "__main__":
     mqtt_client.on_disconnect = on_disconnect
     mqtt_client.connect_async("test.mosquitto.org")
     mqtt_client.loop_start()
+    
 
     loop = asyncio.get_event_loop()
     max_x_characteristic = "00001142-0000-1000-8000-00805f9b34fb"
