@@ -221,8 +221,17 @@ class Connection:
                 await self.connect()
                 await asyncio.sleep(5.0, loop=loop)
 
-
-                                    
+                if self.connected():
+                    while True:
+                        for service in self.client.services:
+                            for char in service.characteristics:
+                                if "read" in char.properties:
+                                    value = bytes(await self.client.read_gatt_char(char.uuid))
+                                    max_x = struct.unpack('f', value)
+                                    if max_x != self.velocity:
+                                        self.velocity = max_x
+                                        print('velocity = ', self.velocity)
+                                        await self.publish_velocity()
                     # await self.play_game()
             else:
                 await self.select_device()
@@ -231,7 +240,7 @@ class Connection:
     async def publish_velocity(self):
         async with Client("test.mosquitto.org") as mqtt_client:
             await mqtt_client.publish("ece180d/team7/pygame", self.velocity[0])
-            await asyncio.sleep(1)
+            # await asyncio.sleep(1)
 
     async def connect(self):
         if self.connected:
@@ -253,6 +262,7 @@ class Connection:
                 # await self.client.start_notify(
                 #     self.max_z_characteristic, self.max_z_characteristic_handler,
                 # )
+                '''
                 while True:
                     for service in self.client.services:
                         for char in service.characteristics:
@@ -288,7 +298,7 @@ class Connection:
                 #                 value = bytes(await self.client.read_gatt_char(char.uuid))
                 #                 print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
                 #     await asyncio.sleep(5.0, loop=loop)
-                    
+                    '''
             else:
                 print(f"Failed to connect to {self.connected_device.name}")
         except Exception as e:
