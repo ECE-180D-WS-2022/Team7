@@ -20,7 +20,7 @@ import urllib
 import time
 
 import paho.mqtt.client as mqtt
-from asyncio_mqtt import Client, MqttError
+# from asyncio_mqtt import Client, MqttError
 
 def on_connect(client, userdata, flags, rc):
     print("Connection returned result: "+str(rc))
@@ -34,10 +34,11 @@ def on_disconnect(client, userdata, rc):
     else:
         print('Expected Disconnect')
 
-mqtt_client = mqtt.Client()
+mqtt_client = mqtt.Client("", True, None, mqtt.MQTTv31)
 mqtt_client.on_connect = on_connect
 mqtt_client.on_disconnect = on_disconnect
 mqtt_client.connect_async("test.mosquitto.org")
+mqtt_client.loop_start()
 
 '''
 global mqtt_client
@@ -50,7 +51,7 @@ mqtt_client.loop_start()
 
 # publish_result = mqtt_client.publish('ece180d/team7/pygame', '2', qos=1)
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 
@@ -445,14 +446,14 @@ def choose_level():
     return mode
 
 # if __name__ == "__main__":
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
-game_mode = choose_level()
-print(game_mode)
+# logger = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.INFO)
+# game_mode = choose_level()
+# print(game_mode)
 
 
 # mqtt_client.connect_srv("mqtt.eclipseprojects.io")
-mqtt_client.loop_start()
+
 
 
 loop = asyncio.get_event_loop()
