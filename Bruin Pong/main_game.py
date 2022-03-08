@@ -1,4 +1,5 @@
 import asyncio
+
 from bleak import BleakScanner
 from bleak import BleakClient
 import logging
@@ -19,6 +20,7 @@ import urllib
 import time
 
 import paho.mqtt.client as mqtt
+from asyncio_mqtt import Client, MqttError
 
 def on_connect(client, userdata, flags, rc):
     print("Connection returned result: "+str(rc))
@@ -182,12 +184,12 @@ class Connection:
         loop: asyncio.AbstractEventLoop,
         max_x_characteristic: str,
         max_z_characteristic: str,
-        mqtt_client
+        # mqtt_client
     ):
         self.loop = loop
         self.max_x_characteristic = max_x_characteristic
         self.max_z_characteristic = max_z_characteristic
-        self.mqtt_client = mqtt_client
+        # self.mqtt_client = mqtt_client
         self.velocity = 0
         
         # Device state
@@ -226,6 +228,11 @@ class Connection:
                 await self.select_device()
                 await asyncio.sleep(15.0, loop=loop) 
 
+    async def publish_velocity(self):
+        async with Client("test.mosquitto.org") as mqtt_client:
+            await mqtt_client.publish("ece180d/team7/pygame", self.velocity[0])
+            await asyncio.sleep(1)
+
     async def connect(self):
         if self.connected:
             return
@@ -262,13 +269,14 @@ class Connection:
                                     if max_x != self.velocity:
                                         self.velocity = max_x
                                         print('velocity = ', self.velocity)
+                                        await self.publish_velocity()
                                         # global mqtt_client
                                         # print(mqtt_client)
                                         # mqtt_client = mqtt.Client()
                                         # mqtt_client.connect_async("test.mosquitto.org")
                                         # mqtt_client.loop_start()
-                                        publish_result = self.mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
-                                        print(publish_result)
+                                        # publish_result = self.mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
+                                        # print(publish_result)
                                             # print ('published successfully')
 
                 # while True:
@@ -423,14 +431,14 @@ if __name__ == "__main__":
     max_x_characteristic = "00001142-0000-1000-8000-00805f9b34fb"
     max_z_characteristic = "00001143-0000-1000-8000-00805f9b34fb"
     
-    mqtt_client = mqtt.Client()
-    mqtt_client.on_connect = on_connect
-    mqtt_client.on_disconnect = on_disconnect
-    mqtt_client.connect_async("test.mosquitto.org")
-    mqtt_client.loop_start()
+    # mqtt_client = mqtt.Client()
+    # mqtt_client.on_connect = on_connect
+    # mqtt_client.on_disconnect = on_disconnect
+    # mqtt_client.connect_async("test.mosquitto.org")
+    # mqtt_client.loop_start()
     
     connection = Connection(
-        loop, max_x_characteristic, max_z_characteristic, mqtt_client)
+        loop, max_x_characteristic, max_z_characteristic)
     try:
         
         asyncio.ensure_future(connection.manager())
