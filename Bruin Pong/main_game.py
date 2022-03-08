@@ -29,13 +29,14 @@ def on_disconnect(client, userdata, rc):
     else:
         print('Expected Disconnect')
 
+'''
 global mqtt_client
 mqtt_client = mqtt.Client()
 mqtt_client.on_connect = on_connect
 mqtt_client.on_disconnect = on_disconnect
 mqtt_client.connect_async("test.mosquitto.org")
 mqtt_client.loop_start()
-
+'''
 
 # publish_result = mqtt_client.publish('ece180d/team7/pygame', '2', qos=1)
 
@@ -172,49 +173,6 @@ def display_score():
 #        return False
 #    else: return True
 
-# start of main code
-pygame.init()
-screen = pygame.display.set_mode((800,400))
-pygame.display.set_caption('Bruin Pong')
-clock = pygame.time.Clock()
-test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
-game_active = False
-start_time = 0
-score = 0
-#bg_music = pygame.mixer.Sound('audio/music.wav')
-#bg_music.play(loops = -1)
-
-#Groups
-player = pygame.sprite.GroupSingle()
-player.add(Player())
-
-ball = pygame.sprite.GroupSingle()
-cup_group = pygame.sprite.Group()
-
-sky_surface = pygame.image.load('graphics/Sky.png').convert()
-ground_surface = pygame.image.load('graphics/ground.png').convert()
-
-# Intro screen
-player_stand = pygame.image.load('graphics/player/player_stand.png').convert_alpha()
-player_stand = pygame.transform.rotozoom(player_stand,0,2)
-player_stand_rect = player_stand.get_rect(center = (400,200))
-
-game_name = test_font.render('Bruin Pong',False,(111,196,169))
-game_name_rect = game_name.get_rect(center = (400,80))
-
-game_message = test_font.render('Press space to start',False,(111,196,169))
-game_message_rect = game_message.get_rect(center = (400,330))
-
-# Timer
-ball_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(ball_timer,1500)
-
-# global variables
-is_throw = False
-time = 0
-
-
-
 class Connection:
     
     client: BleakClient = None
@@ -223,12 +181,13 @@ class Connection:
         self,
         loop: asyncio.AbstractEventLoop,
         max_x_characteristic: str,
-        max_z_characteristic: str
+        max_z_characteristic: str,
+        mqtt_client
     ):
         self.loop = loop
         self.max_x_characteristic = max_x_characteristic
         self.max_z_characteristic = max_z_characteristic
-
+        self.mqtt_client = mqtt_client
         self.velocity = 0
         
         # Device state
@@ -305,11 +264,10 @@ class Connection:
                                         print('velocity = ', self.velocity)
                                         # global mqtt_client
                                         # print(mqtt_client)
-                                        mqtt_client = mqtt.Client()
-                                        await mqtt_client.connect_async("test.mosquitto.org")
-                                        await asyncio.sleep(1, loop=loop)
-                                        mqtt_client.loop_start()
-                                        publish_result = mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
+                                        # mqtt_client = mqtt.Client()
+                                        # mqtt_client.connect_async("test.mosquitto.org")
+                                        # mqtt_client.loop_start()
+                                        publish_result = self.mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
                                         print(publish_result)
                                             # print ('published successfully')
 
@@ -360,119 +318,6 @@ class Connection:
         self.connected_device = devices[response]
         self.client = BleakClient(devices[response].address)
         print("here")
-
-    async def play_game(self):
-        # start of main code
-        pygame.init()
-        screen = pygame.display.set_mode((800,400))
-        pygame.display.set_caption('Bruin Pong')
-        clock = pygame.time.Clock()
-        test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
-        game_active = False
-        start_time = 0
-        score = 0
-        #bg_music = pygame.mixer.Sound('audio/music.wav')
-        #bg_music.play(loops = -1)
-
-        #Groups
-        player = pygame.sprite.GroupSingle()
-        player.add(Player())
-
-        ball = pygame.sprite.GroupSingle()
-        cup_group = pygame.sprite.Group()
-
-        sky_surface = pygame.image.load('graphics/Sky.png').convert()
-        ground_surface = pygame.image.load('graphics/ground.png').convert()
-
-        # Intro screen
-        player_stand = pygame.image.load('graphics/player/player_stand.png').convert_alpha()
-        player_stand = pygame.transform.rotozoom(player_stand,0,2)
-        player_stand_rect = player_stand.get_rect(center = (400,200))
-
-        game_name = test_font.render('Bruin Pong',False,(111,196,169))
-        game_name_rect = game_name.get_rect(center = (400,80))
-
-        game_message = test_font.render('Press space to start',False,(111,196,169))
-        game_message_rect = game_message.get_rect(center = (400,330))
-
-        # Timer
-        ball_timer = pygame.USEREVENT + 1
-        pygame.time.set_timer(ball_timer,1500)
-
-        # global variables
-        is_throw = False
-        time = 0
-
-        while True:
-            for event in pygame.event.get():
-                # terminate application
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-
-                # press return key to throw ball if on game page
-                if game_active:
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                        is_throw = True
-                        time = 0
-                        ball.add(Ball())
-                
-                # on home page, press space to enter game page
-                else:
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                        game_active = True
-                        
-                        # game page initiations
-                        start_time = int(pygame.time.get_ticks())
-                        power = PowerBar()
-        #                cup_group.add(Cup(500))
-        #                cup_group.add(Cup(600))
-        #                cup_group.add(Cup(700))
-
-        # update game page
-        if game_active:
-            # game page background
-            screen.blit(sky_surface,(0,0))
-            screen.blit(ground_surface,(0,300))
-            score = display_score()
-            
-            # game page sprites
-            player.draw(screen)
-            player.update()
-            cup_group.draw(screen)
-            
-            power.draw(screen)
-            
-            # if throwing
-            if is_throw:
-                ball.draw(screen)
-                ball.update(power.ret_power(),time)
-                time += 0.05
-                # if the ball is deleted
-                if not ball:
-                    is_throw = False
-                    power.reset()
-            # if not throwing, keep adjusting powerbar
-            else:
-                power.move_bar()
-    #        game_active = collision_sprite()
-        
-        # on the restart page
-        else:
-            screen.fill((94,129,162))
-            screen.blit(player_stand,player_stand_rect)
-
-            score_message = test_font.render(f'Your score: {score}',False,(111,196,169))
-            score_message_rect = score_message.get_rect(center = (400,330))
-            screen.blit(game_name,game_name_rect)
-
-            if score == 0: screen.blit(game_message,game_message_rect)
-            else: screen.blit(score_message,score_message_rect)
-
-        # update the display and fps
-        pygame.display.update()
-        clock.tick(60)
-        await asyncio.sleep(5)
 
 
 #if command=='start': 
@@ -577,8 +422,15 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     max_x_characteristic = "00001142-0000-1000-8000-00805f9b34fb"
     max_z_characteristic = "00001143-0000-1000-8000-00805f9b34fb"
+    
+    mqtt_client = mqtt.Client()
+    mqtt_client.on_connect = on_connect
+    mqtt_client.on_disconnect = on_disconnect
+    mqtt_client.connect_async("test.mosquitto.org")
+    mqtt_client.loop_start()
+    
     connection = Connection(
-        loop, max_x_characteristic, max_z_characteristic,)
+        loop, max_x_characteristic, max_z_characteristic, mqtt_client)
     try:
         
         asyncio.ensure_future(connection.manager())
