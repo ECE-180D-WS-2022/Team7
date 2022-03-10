@@ -38,7 +38,7 @@ def on_message(client, userdata, message):
   print('Received message: "' + str(message.payload) + '" on topic "' + 
         message.topic + '" with QoS ' + str(message.qos))
 
-mqtt_client = mqtt.Client("", True, None, mqtt.MQTTv31)
+mqtt_client = mqtt.Client()
 mqtt_client.on_connect = on_connect
 mqtt_client.on_disconnect = on_disconnect
 mqtt_client.on_message = on_message
