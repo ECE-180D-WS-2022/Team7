@@ -1,4 +1,5 @@
 import asyncio
+
 from bleak import BleakScanner
 from bleak import BleakClient
 import logging
@@ -18,7 +19,44 @@ import urllib
 # import speech_recognition as sr
 import time
 
-logger = logging.getLogger(__name__)
+import paho.mqtt.client as mqtt
+# from asyncio_mqtt import Client, MqttError
+
+def on_connect(client, userdata, flags, rc):
+    print("Connection returned result: "+str(rc))
+    if rc != 0:
+        print("connection failed")
+        quit()
+
+def on_disconnect(client, userdata, rc): 
+    if rc != 0:     
+        print('Unexpected Disconnect')
+    else:
+        print('Expected Disconnect')
+
+def on_message(client, userdata, message): 
+  print('Received message: "' + str(message.payload) + '" on topic "' + 
+        message.topic + '" with QoS ' + str(message.qos))
+
+mqtt_client = mqtt.Client()
+mqtt_client.on_connect = on_connect
+mqtt_client.on_disconnect = on_disconnect
+mqtt_client.on_message = on_message
+mqtt_client.connect_async("test.mosquitto.org")
+mqtt_client.loop_start()
+
+'''
+global mqtt_client
+mqtt_client = mqtt.Client()
+mqtt_client.on_connect = on_connect
+mqtt_client.on_disconnect = on_disconnect
+mqtt_client.connect_async("test.mosquitto.org")
+mqtt_client.loop_start()
+'''
+
+# publish_result = mqtt_client.publish('ece180d/team7/pygame', '2', qos=1)
+
+# logger = logging.getLogger(__name__)
 
 
 
@@ -151,49 +189,6 @@ def display_score():
 #        return False
 #    else: return True
 
-# start of main code
-pygame.init()
-screen = pygame.display.set_mode((800,400))
-pygame.display.set_caption('Bruin Pong')
-clock = pygame.time.Clock()
-test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
-game_active = False
-start_time = 0
-score = 0
-#bg_music = pygame.mixer.Sound('audio/music.wav')
-#bg_music.play(loops = -1)
-
-#Groups
-player = pygame.sprite.GroupSingle()
-player.add(Player())
-
-ball = pygame.sprite.GroupSingle()
-cup_group = pygame.sprite.Group()
-
-sky_surface = pygame.image.load('graphics/Sky.png').convert()
-ground_surface = pygame.image.load('graphics/ground.png').convert()
-
-# Intro screen
-player_stand = pygame.image.load('graphics/player/player_stand.png').convert_alpha()
-player_stand = pygame.transform.rotozoom(player_stand,0,2)
-player_stand_rect = player_stand.get_rect(center = (400,200))
-
-game_name = test_font.render('Bruin Pong',False,(111,196,169))
-game_name_rect = game_name.get_rect(center = (400,80))
-
-game_message = test_font.render('Press space to start',False,(111,196,169))
-game_message_rect = game_message.get_rect(center = (400,330))
-
-# Timer
-ball_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(ball_timer,1500)
-
-# global variables
-is_throw = False
-time = 0
-
-
-
 class Connection:
     
     client: BleakClient = None
@@ -202,12 +197,13 @@ class Connection:
         self,
         loop: asyncio.AbstractEventLoop,
         max_x_characteristic: str,
-        max_z_characteristic: str
+        max_z_characteristic: str,
+        mqtt_client
     ):
         self.loop = loop
         self.max_x_characteristic = max_x_characteristic
         self.max_z_characteristic = max_z_characteristic
-
+        self.mqtt_client = mqtt_client
         self.velocity = 0
         
         # Device state
@@ -239,21 +235,15 @@ class Connection:
                 await self.connect()
                 await asyncio.sleep(5.0, loop=loop)
 
-                while True:
-                    for service in self.client.services:
-                        for char in service.characteristics:
-                            if "read" in char.properties:
-                                if char == max_x_characteristic:
-                                    value = bytes(await self.client.read_gatt_char(char.uuid))
-                                    # print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
-                                    max_x = struct.unpack('f', value)
-                                    if max_x != self.velocity:
-                                        self.velocity = max_x
-                                    print('velocity = ', self.velocity)
                     # await self.play_game()
             else:
                 await self.select_device()
                 await asyncio.sleep(15.0, loop=loop) 
+
+    async def publish_velocity(self):
+        async with Client("test.mosquitto.org") as mqtt_client:
+            await mqtt_client.publish("ece180d/team7/pygame", self.velocity[0])
+            # await asyncio.sleep(1)
 
     async def connect(self):
         if self.connected:
@@ -269,12 +259,54 @@ class Connection:
                 print(f"Connected to {self.connected_device.name}")
                 self.client.set_disconnected_callback(self.on_disconnect)
 
-                await self.client.start_notify(
-                    self.max_x_characteristic, self.max_x_characteristic_handler,
-                )
-                await self.client.start_notify(
-                    self.max_z_characteristic, self.max_z_characteristic_handler,
-                )
+                while True:
+                    for service in self.client.services:
+                        for char in service.characteristics:
+                            if "read" in char.properties:
+                                value = bytes(await self.client.read_gatt_char(char.uuid))
+                                max_x = struct.unpack('f', value)
+                                if max_x != self.velocity:
+                                    self.velocity = max_x
+                                    print('velocity = ', self.velocity)
+                                    self.mqtt_client.reconnect()
+                                    publish_result = self.mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
+                                    print(publish_result)
+                                    # async with Client("test.mosquitto.org") as mqtt_client:
+                                    #     await mqtt_client.publish("ece180d/team7/pygame", self.velocity[0], qos=1)
+                                    # await self.publish_velocity()
+                # await self.client.start_notify(
+                #     self.max_x_characteristic, self.max_x_characteristic_handler,
+                # )
+                # await self.client.start_notify(
+                #     self.max_z_characteristic, self.max_z_characteristic_handler,
+                # )
+                '''
+                while True:
+                    for service in self.client.services:
+                        for char in service.characteristics:
+                            if "read" in char.properties:
+                                # print(char)
+                                # print(max_x_characteristic)
+                                # if str(char) == max_x_characteristic:
+                                    value = bytes(await self.client.read_gatt_char(char.uuid))
+                                    # print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
+                                    max_x = struct.unpack('f', value)
+                                    # print(max_x)
+                                    # if max_x > 4:
+                                    #     continue
+                                    if max_x != self.velocity:
+                                        self.velocity = max_x
+                                        print('velocity = ', self.velocity)
+                                        await self.publish_velocity()
+                                        # global mqtt_client
+                                        # print(mqtt_client)
+                                        # mqtt_client = mqtt.Client()
+                                        # mqtt_client.connect_async("test.mosquitto.org")
+                                        # mqtt_client.loop_start()
+                                        # publish_result = self.mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
+                                        # print(publish_result)
+                                            # print ('published successfully')
+
                 # while True:
                 #     if not self.connected:
                 #         break
@@ -284,7 +316,7 @@ class Connection:
                 #                 value = bytes(await self.client.read_gatt_char(char.uuid))
                 #                 print(f"\t[Characteristic] {char} ({','.join(char.properties)}), Value: {value}")
                 #     await asyncio.sleep(5.0, loop=loop)
-                    
+                    '''
             else:
                 print(f"Failed to connect to {self.connected_device.name}")
         except Exception as e:
@@ -322,119 +354,6 @@ class Connection:
         self.connected_device = devices[response]
         self.client = BleakClient(devices[response].address)
         print("here")
-
-    async def play_game(self):
-        # start of main code
-        pygame.init()
-        screen = pygame.display.set_mode((800,400))
-        pygame.display.set_caption('Bruin Pong')
-        clock = pygame.time.Clock()
-        test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
-        game_active = False
-        start_time = 0
-        score = 0
-        #bg_music = pygame.mixer.Sound('audio/music.wav')
-        #bg_music.play(loops = -1)
-
-        #Groups
-        player = pygame.sprite.GroupSingle()
-        player.add(Player())
-
-        ball = pygame.sprite.GroupSingle()
-        cup_group = pygame.sprite.Group()
-
-        sky_surface = pygame.image.load('graphics/Sky.png').convert()
-        ground_surface = pygame.image.load('graphics/ground.png').convert()
-
-        # Intro screen
-        player_stand = pygame.image.load('graphics/player/player_stand.png').convert_alpha()
-        player_stand = pygame.transform.rotozoom(player_stand,0,2)
-        player_stand_rect = player_stand.get_rect(center = (400,200))
-
-        game_name = test_font.render('Bruin Pong',False,(111,196,169))
-        game_name_rect = game_name.get_rect(center = (400,80))
-
-        game_message = test_font.render('Press space to start',False,(111,196,169))
-        game_message_rect = game_message.get_rect(center = (400,330))
-
-        # Timer
-        ball_timer = pygame.USEREVENT + 1
-        pygame.time.set_timer(ball_timer,1500)
-
-        # global variables
-        is_throw = False
-        time = 0
-
-        while True:
-            for event in pygame.event.get():
-                # terminate application
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-
-                # press return key to throw ball if on game page
-                if game_active:
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                        is_throw = True
-                        time = 0
-                        ball.add(Ball())
-                
-                # on home page, press space to enter game page
-                else:
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                        game_active = True
-                        
-                        # game page initiations
-                        start_time = int(pygame.time.get_ticks())
-                        power = PowerBar()
-        #                cup_group.add(Cup(500))
-        #                cup_group.add(Cup(600))
-        #                cup_group.add(Cup(700))
-
-        # update game page
-        if game_active:
-            # game page background
-            screen.blit(sky_surface,(0,0))
-            screen.blit(ground_surface,(0,300))
-            score = display_score()
-            
-            # game page sprites
-            player.draw(screen)
-            player.update()
-            cup_group.draw(screen)
-            
-            power.draw(screen)
-            
-            # if throwing
-            if is_throw:
-                ball.draw(screen)
-                ball.update(power.ret_power(),time)
-                time += 0.05
-                # if the ball is deleted
-                if not ball:
-                    is_throw = False
-                    power.reset()
-            # if not throwing, keep adjusting powerbar
-            else:
-                power.move_bar()
-    #        game_active = collision_sprite()
-        
-        # on the restart page
-        else:
-            screen.fill((94,129,162))
-            screen.blit(player_stand,player_stand_rect)
-
-            score_message = test_font.render(f'Your score: {score}',False,(111,196,169))
-            score_message_rect = score_message.get_rect(center = (400,330))
-            screen.blit(game_name,game_name_rect)
-
-            if score == 0: screen.blit(game_message,game_message_rect)
-            else: screen.blit(score_message,score_message_rect)
-
-        # update the display and fps
-        pygame.display.update()
-        clock.tick(60)
-        await asyncio.sleep(5)
 
 
 #if command=='start': 
@@ -531,25 +450,33 @@ def choose_level():
     # game mode 4: Venus (purple)
     return mode
 
-if __name__ == "__main__":
-    logger = logging.getLogger(__name__)
-    logging.basicConfig(level=logging.INFO)
-    game_mode = choose_level()
-    print(game_mode)
-    loop = asyncio.get_event_loop()
-    max_x_characteristic = "00001142-0000-1000-8000-00805f9b34fb"
-    max_z_characteristic = "00001143-0000-1000-8000-00805f9b34fb"
-    connection = Connection(
-        loop, max_x_characteristic, max_z_characteristic,)
-    try:
-        
-        asyncio.ensure_future(connection.manager())
-        # asyncio.ensure_future(connection.play_game())
-        # asyncio.ensure_future(user_console_manager(connection))
-        loop.run_forever()
-    except KeyboardInterrupt:
-        print()
-        print("User stopped program.")
-    finally:
-        print("Disconnecting...")
-        loop.run_until_complete(connection.cleanup())
+# if __name__ == "__main__":
+# logger = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.INFO)
+# game_mode = choose_level()
+# print(game_mode)
+
+
+# mqtt_client.connect_srv("mqtt.eclipseprojects.io")
+
+
+
+loop = asyncio.get_event_loop()
+max_x_characteristic = "00001142-0000-1000-8000-00805f9b34fb"
+max_z_characteristic = "00001143-0000-1000-8000-00805f9b34fb"
+
+
+connection = Connection(
+    loop, max_x_characteristic, max_z_characteristic, mqtt_client)
+try:
+    
+    asyncio.ensure_future(connection.manager())
+    # asyncio.ensure_future(connection.play_game())
+    # asyncio.ensure_future(user_console_manager(connection))
+    loop.run_forever()
+except KeyboardInterrupt:
+    print()
+    print("User stopped program.")
+finally:
+    print("Disconnecting...")
+    loop.run_until_complete(connection.cleanup())

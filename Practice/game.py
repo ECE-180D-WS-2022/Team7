@@ -9,6 +9,47 @@ from sys import exit
 from random import randint, choice
 from math import atan, radians, cos, sin
 
+import paho.mqtt.client as mqtt
+global receieved_msg
+receieved_msg = 0
+
+global msg_receieved
+msg_receieved = 0
+
+def on_connect(client, userdata, flags, rc):
+  print("Connection returned result: "+str(rc))
+
+  # Subscribing in on_connect() means that if we lose the connection and
+  # reconnect then subscriptions will be renewed.
+  client.subscribe("ece180d/team7/pygame", qos=1) 
+
+# The callback of the client when it disconnects. 
+def on_disconnect(client, userdata, rc): 
+  if rc != 0: 
+    print('Unexpected Disconnect')
+  else:
+    print('Expected Disconnect')
+
+def on_message(client, userdata, message): 
+  print('Received message: "' + str(message.payload) + '" on topic "' + 
+        message.topic + '" with QoS ' + str(message.qos))
+  global msg_receieved, receieved_msg
+  msg_receieved = 1
+  message.payload = message.payload.decode("utf-8")
+  receieved_msg = message.payload
+
+client = mqtt.Client()
+# add additional client options (security, certifications, etc.)
+# many default options should be good to start off.
+# add callbacks to client. 
+client.on_connect = on_connect
+client.on_disconnect = on_disconnect
+client.on_message = on_message
+
+client.connect_async("test.mosquitto.org")
+client.loop_start()
+
+
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
 
@@ -55,18 +96,30 @@ class Cup(pygame.sprite.Sprite):
 
 
 class Ball(pygame.sprite.Sprite):
+<<<<<<< HEAD
     def __init__(self, mode):
+=======
+    def __init__(self, velocity):
+>>>>>>> pygame_mqtt
         super().__init__()
         
         ball = pygame.image.load('graphics/ball/ball.png').convert_alpha()
         self.image = ball
         self.rect = self.image.get_rect(midbottom = (100,300))
+<<<<<<< HEAD
         self.mode = mode
 
     def ball_path(self,power,time):
         #angle = 0.785
         angle = 0.9
         vel = power/1.25+20
+=======
+        self.x_velocity = velocity
+
+    def ball_path(self,power,time):
+        angle = 0.785
+        vel = (self.x_velocity * 25 )/1.25+20
+>>>>>>> pygame_mqtt
         vel_x = vel * cos(angle)
         vel_y = vel * sin(angle)
         dist_x = vel_x * time
@@ -174,6 +227,7 @@ pygame.time.set_timer(ball_timer,1500)
 is_throw = False
 time = 0
 
+
 # infinite loop for pygame, only terminates with exiting application
 while True:
     for event in pygame.event.get():
@@ -184,11 +238,17 @@ while True:
 
         # press return key to throw ball if on game page
         if game_active:
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+            # if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+            if msg_receieved:
                 is_throw = True
                 time = 0
+<<<<<<< HEAD
                 ball.add(Ball(3))
                 
+=======
+                ball.add(Ball(float(receieved_msg)))
+                msg_receieved = 0
+>>>>>>> pygame_mqtt
         
         # on home page, press space to enter game page
         else:
