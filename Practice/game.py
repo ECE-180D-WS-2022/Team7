@@ -211,7 +211,7 @@ while True:
             if msg_receieved:
                 is_throw = True
                 time = 0
-                ball.add(Ball(receieved_msg))
+                ball.add(Ball(float(receieved_msg)))
                 msg_receieved = 0
         
         # on home page, press space to enter game page
