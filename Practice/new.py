@@ -61,7 +61,7 @@ class Ball(pygame.sprite.Sprite):
         self.mass = 1.0
         self.t = 0
         self.radius = 5
-        self.friction = 0
+        self.friction = 0.01
         self.g = 9.8
 
         self.solver = ode(self.f)
@@ -203,8 +203,10 @@ class World:
             radius_j = self.rim[j].radius
             if dist_ij > self.ball.radius + radius_j:
                 continue
-
-            self.ball.state = self.ball.prev_state + 0.1
+            if self.ball.prev_state[2] == 0 and self.ball.prev_state[3] == 0:
+                self.ball.state = self.ball.prev_state - 0.1
+            self.ball.state = self.ball.prev_state
+                
 
             vel_i = np.array(self.ball.state[2:])
             n_ij = self.normalize(pos_i - pos_j)
