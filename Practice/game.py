@@ -13,6 +13,9 @@ import paho.mqtt.client as mqtt
 global receieved_msg
 receieved_msg = 0
 
+global msg_receieved
+msg_receieved = 0
+
 def on_connect(client, userdata, flags, rc):
   print("Connection returned result: "+str(rc))
 
