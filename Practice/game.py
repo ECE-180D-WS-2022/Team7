@@ -96,13 +96,14 @@ class Cup(pygame.sprite.Sprite):
 
 
 class Ball(pygame.sprite.Sprite):
-    def __init__(self, velocity):
+    def __init__(self, velocity, mode):
         super().__init__()
         
         ball = pygame.image.load('graphics/ball/ball.png').convert_alpha()
         self.image = ball
         self.rect = self.image.get_rect(midbottom = (100,250))
         self.mode = mode
+        self.x_velocity = velocity
 
     def ball_path(self,power,time):
         angle = 0.785
@@ -239,7 +240,7 @@ while True:
             if msg_receieved:
                 is_throw = True
                 time = 0
-                ball.add(Ball(float(receieved_msg)))
+                ball.add(Ball(float(receieved_msg), 2))
                 msg_receieved = 0
         
         # on home page, press space to enter game page
@@ -250,11 +251,11 @@ while True:
                 # game page initiations
                 start_time = int(pygame.time.get_ticks())
                 power = PowerBar()
-                
-               cup_group.add(Cup(440))
-               cup_group.add(Cup(500))
-               cup_group.add(Cup(560))
-               cup_group.add(Cup(620))
+                    
+                cup_group.add(Cup(440))
+                cup_group.add(Cup(500))
+                cup_group.add(Cup(560))
+                cup_group.add(Cup(620))
                 cup_group.add(Cup(680))
 
     # update game page
