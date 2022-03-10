@@ -96,30 +96,17 @@ class Cup(pygame.sprite.Sprite):
 
 
 class Ball(pygame.sprite.Sprite):
-<<<<<<< HEAD
-    def __init__(self, mode):
-=======
     def __init__(self, velocity):
->>>>>>> pygame_mqtt
         super().__init__()
         
         ball = pygame.image.load('graphics/ball/ball.png').convert_alpha()
         self.image = ball
         self.rect = self.image.get_rect(midbottom = (100,300))
-<<<<<<< HEAD
-        self.mode = mode
-
-    def ball_path(self,power,time):
-        #angle = 0.785
-        angle = 0.9
-        vel = power/1.25+20
-=======
         self.x_velocity = velocity
 
     def ball_path(self,power,time):
         angle = 0.785
         vel = (self.x_velocity * 25 )/1.25+20
->>>>>>> pygame_mqtt
         vel_x = vel * cos(angle)
         vel_y = vel * sin(angle)
         dist_x = vel_x * time
@@ -242,13 +229,8 @@ while True:
             if msg_receieved:
                 is_throw = True
                 time = 0
-<<<<<<< HEAD
-                ball.add(Ball(3))
-                
-=======
                 ball.add(Ball(float(receieved_msg)))
                 msg_receieved = 0
->>>>>>> pygame_mqtt
         
         # on home page, press space to enter game page
         else:
