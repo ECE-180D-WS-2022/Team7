@@ -101,8 +101,8 @@ class Ball(pygame.sprite.Sprite):
         
         ball = pygame.image.load('graphics/ball/ball.png').convert_alpha()
         self.image = ball
-        self.rect = self.image.get_rect(midbottom = (100,300))
-        self.x_velocity = velocity
+        self.rect = self.image.get_rect(midbottom = (100,250))
+        self.mode = mode
 
     def ball_path(self,power,time):
         angle = 0.785
@@ -123,7 +123,7 @@ class Ball(pygame.sprite.Sprite):
         dist_y = (vel_y * time) + ((gravity * (time)**2)/2)
         
         
-        self.rect.midbottom = (round(dist_x + 100),round(-1*dist_y + 300))
+        self.rect.midbottom = (round(dist_x + 100),round(-1*dist_y + 250))
 
     def destroy(self):
         if (self.rect.midbottom[0] > 900) or (self.rect.midbottom[0] < 0) or (self.rect.midbottom[1] > 300):
@@ -154,18 +154,27 @@ class PowerBar:
         self.power = 0
         self.direction = 1
 
-def display_score():
-    current_time = int(pygame.time.get_ticks()) - start_time
-    score_surf = test_font.render(f'Score: {current_time}',False,(64,64,64))
+def display_score(score):
+    #current_time = int(pygame.time.get_ticks()) - start_time
+    score_surf = test_font.render(f'Score: {score}',False,(64,64,64))
     score_rect = score_surf.get_rect(center = (400,50))
     screen.blit(score_surf,score_rect)
-    return current_time
+    return True
 
 def collision_sprite():
-    if pygame.sprite.spritecollide(ball.sprite,cup_group,False):
-        return True
+    collision = pygame.sprite.spritecollide(ball.sprite,cup_group,False)
+    
+    if collision:
+        if ball.sprite.rect.top < (collision[0].rect.top)+10:
+            print(ball.sprite.rect.bottom)
+            print(collision[0].rect.top)
+            collision[0].kill()
+            ball.sprite.kill() 
+            return True
     else:
         return False
+    
+
 
 #def collision_sprite():
 #    if pygame.sprite.spritecollide(.sprite,obstacle_group,False):
@@ -181,6 +190,7 @@ clock = pygame.time.Clock()
 test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
 game_active = False
 start_time = 0
+score_num = 0
 score = 0
 #bg_music = pygame.mixer.Sound('audio/music.wav')
 #bg_music.play(loops = -1)
@@ -240,16 +250,19 @@ while True:
                 # game page initiations
                 start_time = int(pygame.time.get_ticks())
                 power = PowerBar()
-                cup_group.add(Cup(500))
-                cup_group.add(Cup(550))
-                cup_group.add(Cup(600))
+                
+               cup_group.add(Cup(440))
+               cup_group.add(Cup(500))
+               cup_group.add(Cup(560))
+               cup_group.add(Cup(620))
+                cup_group.add(Cup(680))
 
     # update game page
     if game_active:
         # game page background
         screen.blit(sky_surface,(0,0))
         screen.blit(ground_surface,(0,300))
-        score = display_score()
+        score = display_score(score_num)
         
         # game page sprites
         player.draw(screen)
@@ -263,9 +276,12 @@ while True:
             ball.draw(screen)
             ball.update(power.ret_power(),time)
             time += 0.05
-            #if collision_sprite(): 
-            #    print('hit')
-                
+            
+          
+            if ball and collision_sprite(): 
+                score_num += 1
+                    #print('hit')
+                    #print(score_num)
             # if the ball is deleted
             if not ball:
                 is_throw = False
@@ -273,6 +289,18 @@ while True:
         # if not throwing, keep adjusting powerbar
         else:
             power.move_bar()
+        if not cup_group.sprites():
+            screen.fill((94,129,162))
+            screen.blit(player_stand,player_stand_rect)
+
+            score_message = test_font.render(f'Your score: {score_num}',False,(111,196,169))
+            score_message_rect = score_message.get_rect(center = (400,330))
+            finish_name = test_font.render('Game Over',False,(111,196,169))
+            screen.blit(finish_name,game_name_rect)
+
+            if score == 0: screen.blit(game_message,game_message_rect)
+            else: screen.blit(score_message,score_message_rect)
+            
 #        game_active = collision_sprite()
      
     # on the restart page
@@ -280,7 +308,7 @@ while True:
         screen.fill((94,129,162))
         screen.blit(player_stand,player_stand_rect)
 
-        score_message = test_font.render(f'Your score: {score}',False,(111,196,169))
+        score_message = test_font.render(f'Your score: {score_num}',False,(111,196,169))
         score_message_rect = score_message.get_rect(center = (400,330))
         screen.blit(game_name,game_name_rect)
 
