@@ -60,7 +60,7 @@ class Ball(pygame.sprite.Sprite):
         
         ball = pygame.image.load('graphics/ball/ball.png').convert_alpha()
         self.image = ball
-        self.rect = self.image.get_rect(midbottom = (100,300))
+        self.rect = self.image.get_rect(midbottom = (100,250))
         self.mode = mode
 
     def ball_path(self,power,time):
@@ -83,7 +83,7 @@ class Ball(pygame.sprite.Sprite):
         dist_y = (vel_y * time) + ((gravity * (time)**2)/2)
         
         
-        self.rect.midbottom = (round(dist_x + 100),round(-1*dist_y + 300))
+        self.rect.midbottom = (round(dist_x + 100),round(-1*dist_y + 250))
 
     def destroy(self):
         if (self.rect.midbottom[0] > 900) or (self.rect.midbottom[0] < 0) or (self.rect.midbottom[1] > 300):
@@ -125,7 +125,7 @@ def collision_sprite():
     collision = pygame.sprite.spritecollide(ball.sprite,cup_group,False)
     
     if collision:
-        if ball.sprite.rect.bottom < (collision[0].rect.top)+5:
+        if ball.sprite.rect.top < (collision[0].rect.top)+10:
             print(ball.sprite.rect.bottom)
             print(collision[0].rect.top)
             collision[0].kill()
@@ -133,6 +133,8 @@ def collision_sprite():
             return True
     else:
         return False
+    
+
 
 #def collision_sprite():
 #    if pygame.sprite.spritecollide(.sprite,obstacle_group,False):
@@ -207,10 +209,10 @@ while True:
                 start_time = int(pygame.time.get_ticks())
                 power = PowerBar()
                 
-                cup_group.add(Cup(440))
-                cup_group.add(Cup(500))
-                cup_group.add(Cup(560))
-                cup_group.add(Cup(620))
+               # cup_group.add(Cup(440))
+               # cup_group.add(Cup(500))
+               # cup_group.add(Cup(560))
+               # cup_group.add(Cup(620))
                 cup_group.add(Cup(680))
 
     # update game page
@@ -232,6 +234,7 @@ while True:
             ball.draw(screen)
             ball.update(power.ret_power(),time)
             time += 0.05
+            
           
             if ball and collision_sprite(): 
                 score_num += 1
@@ -244,6 +247,18 @@ while True:
         # if not throwing, keep adjusting powerbar
         else:
             power.move_bar()
+        if not cup_group.sprites():
+            screen.fill((94,129,162))
+            screen.blit(player_stand,player_stand_rect)
+
+            score_message = test_font.render(f'Your score: {score_num}',False,(111,196,169))
+            score_message_rect = score_message.get_rect(center = (400,330))
+            finish_name = test_font.render('Game Over',False,(111,196,169))
+            screen.blit(finish_name,game_name_rect)
+
+            if score == 0: screen.blit(game_message,game_message_rect)
+            else: screen.blit(score_message,score_message_rect)
+            
 #        game_active = collision_sprite()
      
     # on the restart page
@@ -251,7 +266,7 @@ while True:
         screen.fill((94,129,162))
         screen.blit(player_stand,player_stand_rect)
 
-        score_message = test_font.render(f'Your score: {score}',False,(111,196,169))
+        score_message = test_font.render(f'Your score: {score_num}',False,(111,196,169))
         score_message_rect = score_message.get_rect(center = (400,330))
         screen.blit(game_name,game_name_rect)
 
