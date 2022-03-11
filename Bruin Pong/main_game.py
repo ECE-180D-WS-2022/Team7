@@ -18,6 +18,7 @@ import cv2
 import urllib 
 # import speech_recognition as sr
 import time
+import speech_recognition as sr
 
 import paho.mqtt.client as mqtt
 # from asyncio_mqtt import Client, MqttError
@@ -85,6 +86,24 @@ else:
     
     
 # obtain audio from the microphone
+
+r = sr.Recognizer()
+with sr.Microphone() as source:
+    print("Say 'start' to launch the game, 'help' to see commands")
+    audio = r.listen(source)
+
+try:
+    print("Command detected " + r.recognize_sphinx(audio))
+except sr.UnknownValueError:
+    print("Sphinx could not understand audio")
+except sr.RequestError as e:
+    print("Sphinx error; {0}".format(e))
+
+
+command = r.recognize_sphinx(audio)
+
+
+
 
 
 BLACK = (0, 0, 0)
@@ -453,8 +472,14 @@ def choose_level():
 # if __name__ == "__main__":
 # logger = logging.getLogger(__name__)
 # logging.basicConfig(level=logging.INFO)
-# game_mode = choose_level()
-# print(game_mode)
+while True:
+    if command=='start': 
+        break
+    else:
+        continue
+        
+game_mode = choose_level()
+print(game_mode)
 
 
 # mqtt_client.connect_srv("mqtt.eclipseprojects.io")
