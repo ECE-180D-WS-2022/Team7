@@ -280,7 +280,7 @@ while True:
             ball.draw(screen)
             ball.update(power.ret_power(),time)
             time += 0.05
-            if power_counter <= float(receieved_msg)
+            if power_counter <= float(receieved_msg)*25:
                 power.move_bar()
                 power_counter += 1
           
@@ -292,6 +292,7 @@ while True:
             if not ball:
                 is_throw = False
                 power.reset()
+                power_counter = 0
         # if not throwing, keep adjusting powerbar
 #        else:
 #            power.move_bar()
