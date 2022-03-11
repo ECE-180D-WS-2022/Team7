@@ -148,8 +148,8 @@ class PowerBar:
         if self.power <= 0 or self.power >= 100:
             self.direction *= -1
     
-    def ret_power(self):
-        return self.power
+    def set_power(self,power):
+        self.power = power
     
     def reset(self):
         self.power = 0
@@ -274,6 +274,7 @@ while True:
         
         # if throwing
         if is_throw:
+            power.set_power(receieved_msg)
             ball.draw(screen)
             ball.update(power.ret_power(),time)
             time += 0.05
@@ -288,8 +289,8 @@ while True:
                 is_throw = False
                 power.reset()
         # if not throwing, keep adjusting powerbar
-        else:
-            power.move_bar()
+#        else:
+#            power.move_bar()
         if not cup_group.sprites():
             screen.fill((94,129,162))
             screen.blit(player_stand,player_stand_rect)
