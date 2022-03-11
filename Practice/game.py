@@ -227,7 +227,7 @@ pygame.time.set_timer(ball_timer,1500)
 # global variables
 is_throw = False
 time = 0
-
+power_counter = 0
 
 # infinite loop for pygame, only terminates with exiting application
 while True:
@@ -277,11 +277,12 @@ while True:
         
         # if throwing
         if is_throw:
-            power.set_power(float(receieved_msg))
             ball.draw(screen)
             ball.update(power.ret_power(),time)
             time += 0.05
-            
+            if power_counter <= float(receieved_msg)
+                power.move_bar()
+                power_counter += 1
           
             if ball and collision_sprite(): 
                 score_num += 1
