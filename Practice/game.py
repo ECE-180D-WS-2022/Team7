@@ -141,7 +141,7 @@ class PowerBar:
 
     def draw(self, screen):
         pygame.draw.rect(screen, BLACK, (250, 100, 300, 50), 1)
-        pygame.draw.rect(screen, BLUE, (250, 100, self.power*3, 50), 0)
+        pygame.draw.rect(screen, BLUE, (250, 100, self.power*75, 50), 0)
 
     def move_bar(self):
         self.power += self.direction
@@ -151,6 +151,9 @@ class PowerBar:
     def set_power(self,power):
         self.power = power
     
+    def ret_power(self):
+        return self.power
+
     def reset(self):
         self.power = 0
         self.direction = 1
@@ -274,7 +277,7 @@ while True:
         
         # if throwing
         if is_throw:
-            power.set_power(receieved_msg)
+            power.set_power(float(receieved_msg))
             ball.draw(screen)
             ball.update(power.ret_power(),time)
             time += 0.05
