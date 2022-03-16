@@ -24,7 +24,7 @@ float max_z;
 
 
 const char* max_x_uuid = "00001142-0000-1000-8000-00805f9b34fb";
-const char* max_z_uuid = "00001143-0000-1000-8000-00805f9b34fb";
+//const char* max_z_uuid = "00001143-0000-1000-8000-00805f9b34fb";
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ const char* max_z_uuid = "00001143-0000-1000-8000-00805f9b34fb";
 
 BLEService testService( BLE_UUID_TEST_SERVICE );
 BLEFloatCharacteristic max_x_Characteristic(max_x_uuid, BLERead | BLENotify | BLEBroadcast );
-BLEFloatCharacteristic max_z_Characteristic(max_z_uuid, BLERead | BLENotify | BLEBroadcast);
+//BLEFloatCharacteristic max_z_Characteristic(max_z_uuid, BLERead | BLENotify | BLEBroadcast);
 
 const char* ble_name = "Arduino Nano 33 BLE";
 
@@ -79,7 +79,7 @@ void setup() {
 
   // BLE add characteristics
   testService.addCharacteristic( max_x_Characteristic );
-  testService.addCharacteristic( max_z_Characteristic );
+//  testService.addCharacteristic( max_z_Characteristic );
 
   // add service
   BLE.addService(testService);
@@ -126,7 +126,7 @@ void loop() {
           Serial.println(max_z);
           prev_button_state = 1;
           max_x_Characteristic.writeValue(max_x);
-          max_z_Characteristic.writeValue(max_z);
+//          max_z_Characteristic.writeValue(max_z);
           max_x = 0;
           max_z = 0;
         }
