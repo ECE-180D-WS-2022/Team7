@@ -1,16 +1,12 @@
-# have player on bottom left of screen, player has stand and throw motion
-# have have snails as cups on the bottom right and stationary
-# implement a ball to be thrown from midright of person rect
-# implement collision between ball and cup/ground
-
-
 import pygame
+import numpy as np
 from sys import exit
 from random import randint, choice
 from math import atan, radians, cos, sin
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
+RED = (255, 0, 0)
 
 # Ball size is 16x16
 
@@ -58,26 +54,28 @@ class Ball(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         
-        ball = pygame.image.load('graphics/ball/ball.png').convert_alpha()
-        self.image = ball
-        self.rect = self.image.get_rect(midbottom = (100,300))
-
-    def ball_path(self,power,time):
-        angle = 0.785
-        vel = power/1.25+20
-        vel_x = vel * cos(angle)
-        vel_y = vel * sin(angle)
-        dist_x = vel_x * time
-        dist_y = (vel_y * time) + ((-9.8 * (time)**2)/2)
-        self.rect.midbottom = (round(dist_x + 100),round(-1*dist_y + 300))
-
-    def destroy(self):
-        if (self.rect.midbottom[0] > 900) or (self.rect.midbottom[0] < 0) or (self.rect.midbottom[1] > 300):
-            self.kill()
+        self.image = pygame.image.load('graphics/ball/ball.png').convert_alpha()
+        self.image = pygame.transform.scale(self.image, (16, 16))
+        self.prev_state = [0, 0, 0, 0]
+        self.state = [0, 0, 0, 0]
+        self.radius = 16
+        
+    def set_pos(self, pos):
+        self.state[0:2] = pos
+        
+    def set_vel(self, vel):
+        self.state[2:] = vel
             
-    def update(self,power,time):
-        self.ball_path(power,time)
-        self.destroy()
+    def update(self,power):
+        self.prev_state = self.state
+        self.state[0] = self.prev_state[0] + 0.05*self.prev_state[2]
+        self.state[1] = self.prev_state[1] + 0.05*self.prev_state[3]
+        self.state[3] = self.prev_state[3] + 9.8*0.05
+
+    def draw(self, surface):
+        rect = self.image.get_rect()
+        rect.center = (self.state[0], self.state[1])
+        surface.blit(self.image, rect)
 
 class PowerBar:
     def __init__(self):
@@ -107,11 +105,72 @@ def display_score():
     screen.blit(score_surf,score_rect)
     return current_time
 
-#def collision_sprite():
-#    if pygame.sprite.spritecollide(.sprite,obstacle_group,False):
-#        obstacle_group.empty()
-#        return False
-#    else: return True
+class Rim(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = pygame.image.load('graphics/ball/disk-red.png')
+        self.radius = 5
+        self.image = pygame.transform.scale(self.image, (self.radius * 2, self.radius * 2))
+        self.state = [0, 0]
+
+    def set_pos(self, pos):
+        self.state[0:2] = pos
+        return self
+
+    def draw(self, surface):
+        rect = self.image.get_rect()
+        rect.center = (self.state[0], self.state[1])
+        surface.blit(self.image, rect)
+
+class World:
+    def __init__(self):
+        self.rim = []
+
+    def add_ball(self):
+        ball = Ball()
+        self.ball = ball
+        return ball
+        
+    def add_rim(self):
+        rim = Rim()
+        self.rim.append(rim)
+        return rim
+
+    def draw(self, screen):
+        self.ball.draw(screen)
+        for rim in self.rim:
+            rim.draw(screen)
+            
+    def update(self, power):
+        reset = False
+        self.check_rim_collision()
+        self.ball.update(power)
+        # ball is out of bounds -> reset
+        if (self.ball.state[0] > 850 or self.ball.state[1] > 400):
+            reset = True
+        return reset
+
+    def check_rim_collision(self):
+        pos_i = self.ball.state[0:2]
+        for j in range(0, len(self.rim)):
+            pos_j = np.array(self.rim[j].state[0:2])
+            dist_ij = np.sqrt(np.sum((pos_i - pos_j) ** 2))
+            radius_j = self.rim[j].radius
+            
+            # there is a collision between ball and lip of cup
+            if (dist_ij <= self.ball.radius + radius_j):
+                # make rim centered at (0,0) and normalize ball coordinates
+                new_ball_state = pos_i - pos_j
+                if (new_ball_state[1] >= new_ball_state[0]) and (new_ball_state[1] < -1*new_ball_state[0]):
+                    self.ball.state[2] *= -1
+#                if (new_ball_state[1] >= new_ball_state[0]) and (new_ball_state[1] >= -1*new_ball_state[0]):
+#                    self.ball.state[3] *= -1
+#                if (new_ball_state[1] < new_ball_state[0]) and (new_ball_state[1] >= -1*new_ball_state[0]):
+#                    self.ball.state[2] *= -1
+#                if (new_ball_state[1] < new_ball_state[0]) and (new_ball_state[1] >= -1*new_ball_state[0]):
+#                    self.ball.state[3] *= -1
+        return
 
 # start of main code
 pygame.init()
@@ -128,9 +187,8 @@ score = 0
 #Groups
 player = pygame.sprite.GroupSingle()
 player.add(Player())
-
-ball = pygame.sprite.GroupSingle()
 cup_group = pygame.sprite.Group()
+world = World()
 
 sky_surface = pygame.image.load('graphics/Sky.png').convert()
 ground_surface = pygame.image.load('graphics/ground.png').convert()
@@ -152,7 +210,7 @@ pygame.time.set_timer(ball_timer,1500)
 
 # global variables
 is_throw = False
-time = 0
+power_value = 0
 
 # infinite loop for pygame, only terminates with exiting application
 while True:
@@ -165,9 +223,13 @@ while True:
         # press return key to throw ball if on game page
         if game_active:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                power_value = power.ret_power()
+                angle = 0.785
+                vel = power_value/1.25+20
+                vel_x = vel * cos(angle)
+                vel_y = -vel * sin(angle)
                 is_throw = True
-                time = 0
-                ball.add(Ball())
+                world.ball.set_vel([vel_x,vel_y])
         
         # on home page, press space to enter game page
         else:
@@ -177,6 +239,11 @@ while True:
                 # game page initiations
                 start_time = int(pygame.time.get_ticks())
                 power = PowerBar()
+                
+                world.add_ball().set_pos([100, 280])
+                world.add_rim().set_pos([475, 225])
+                world.add_rim().set_pos([525, 225])
+
                 cup_group.add(Cup(500))
                 #cup_group.add(Cup(600))
                 #cup_group.add(Cup(700))
@@ -192,22 +259,20 @@ while True:
         player.draw(screen)
         player.update()
         cup_group.draw(screen)
-        
         power.draw(screen)
+        world.draw(screen)
         
         # if throwing
         if is_throw:
-            ball.draw(screen)
-            ball.update(power.ret_power(),time)
-            time += 0.05
+            world.update(power_value)
             # if the ball is deleted
-            if not ball:
+            if world.update(power_value):
                 is_throw = False
                 power.reset()
+                world.ball.set_pos([100, 250])
         # if not throwing, keep adjusting powerbar
         else:
             power.move_bar()
-#        game_active = collision_sprite()
      
     # on the restart page
     else:
@@ -223,4 +288,4 @@ while True:
 
     # update the display and fps
     pygame.display.update()
-    clock.tick(60)
+    clock.tick(100)
