@@ -22,7 +22,7 @@ class Player(pygame.sprite.Sprite):
         self.image = self.player_walk
         self.player_jump = pygame.image.load('graphics/player/jump.png').convert_alpha()
 
-        self.rect = self.image.get_rect(midbottom = (80,300))
+        self.rect = self.image.get_rect(midbottom = (10,1200))
         self.gravity = 0
 
         self.jump_sound = pygame.mixer.Sound('audio/jump.mp3')
@@ -115,7 +115,7 @@ def display_score():
 
 # start of main code
 pygame.init()
-screen = pygame.display.set_mode((800,400))
+screen = pygame.display.set_mode((1600,800))
 pygame.display.set_caption('Bruin Pong')
 clock = pygame.time.Clock()
 test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
@@ -132,13 +132,13 @@ player.add(Player())
 ball = pygame.sprite.GroupSingle()
 cup_group = pygame.sprite.Group()
 
-sky_surface = pygame.image.load('graphics/Sky.png').convert()
+sky_surface = pygame.image.load('bruinpong.png').convert()
 ground_surface = pygame.image.load('graphics/ground.png').convert()
 
 # Intro screen
 player_stand = pygame.image.load('graphics/player/player_stand.png').convert_alpha()
 player_stand = pygame.transform.rotozoom(player_stand,0,2)
-player_stand_rect = player_stand.get_rect(center = (400,200))
+player_stand_rect = player_stand.get_rect(center = (800,200))
 
 game_name = test_font.render('Bruin Pong',False,(111,196,169))
 game_name_rect = game_name.get_rect(center = (400,80))
