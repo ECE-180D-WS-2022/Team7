@@ -1,0 +1,3 @@
+issues --
+cant move the character down in pixels. for some reason stays on same vertical plane
+  can use side to side but not up and down

@@ -22,7 +22,7 @@ class Player(pygame.sprite.Sprite):
         self.image = self.player_walk
         self.player_jump = pygame.image.load('graphics/player/jump.png').convert_alpha()
 
-        self.rect = self.image.get_rect(midbottom = (10,1200))
+        self.rect = self.image.get_rect(midbottom = (1000,20))
         self.gravity = 0
 
         self.jump_sound = pygame.mixer.Sound('audio/jump.mp3')
