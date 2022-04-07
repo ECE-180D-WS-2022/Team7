@@ -122,6 +122,24 @@ class Rim(pygame.sprite.Sprite):
         rect = self.image.get_rect()
         rect.center = (self.state[0], self.state[1])
         surface.blit(self.image, rect)
+        
+class SideRim(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = pygame.image.load('graphics/ball/disk-red.png')
+        self.radius = 5
+        self.image = pygame.transform.scale(self.image, (self.radius * 2, self.radius * 12))
+        self.state = [0, 0]
+
+    def set_pos(self, pos):
+        self.state[0:2] = pos
+        return self
+
+    def draw(self, surface):
+        rect = self.image.get_rect()
+        rect.center = (self.state[0], self.state[1])
+        surface.blit(self.image, rect)
 
 class World:
     def __init__(self):
@@ -137,10 +155,16 @@ class World:
         self.rim.append(rim)
         return rim
 
+    def add_siderim(self):
+        siderim = SideRim()
+        self.siderim = siderim
+        return siderim
+        
     def draw(self, screen):
         self.ball.draw(screen)
         for rim in self.rim:
             rim.draw(screen)
+        self.siderim.draw(screen)
             
     def update(self, power):
         reset = False
@@ -153,6 +177,8 @@ class World:
 
     def check_rim_collision(self):
         pos_i = self.ball.state[0:2]
+        if (np.abs(self.ball.state[0]-480) < 10) and (np.abs(self.ball.state[1]-260) < 30) and (self.ball.state[2] > 0):
+            self.ball.state[2] *= -1
         for j in range(0, len(self.rim)):
             pos_j = np.array(self.rim[j].state[0:2])
             dist_ij = np.sqrt(np.sum((pos_i - pos_j) ** 2))
@@ -243,6 +269,7 @@ while True:
                 world.add_ball().set_pos([100, 280])
                 world.add_rim().set_pos([475, 225])
                 world.add_rim().set_pos([525, 225])
+                world.add_siderim().set_pos([480, 270])
 
                 cup_group.add(Cup(500))
                 #cup_group.add(Cup(600))
