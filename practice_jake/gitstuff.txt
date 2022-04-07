@@ -1,0 +1,5 @@
+git branch -- check what branch you're in
+git checkout jake -- change branch to jake (say main or andrew to switch to andrew)
+git add . -- adds all files
+git commit -m "say something here" -- commit the files
+git push -- pushes all files
