@@ -472,14 +472,17 @@ def choose_level():
 # if __name__ == "__main__":
 # logger = logging.getLogger(__name__)
 # logging.basicConfig(level=logging.INFO)
+
 while True:
     if command=='start': 
         break
     else:
         continue
-        
+
 game_mode = choose_level()
 print(game_mode)
+
+
 
 
 # mqtt_client.connect_srv("mqtt.eclipseprojects.io")
