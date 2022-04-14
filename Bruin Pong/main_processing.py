@@ -294,13 +294,14 @@ while True:
     else:
         continue
 '''
-     
+
 game_mode = choose_level()
 print(game_mode)
 
 
 loop = asyncio.get_event_loop()
 max_x_characteristic = "00001142-0000-1000-8000-00805f9b34fb"
+max_z_characteristic = ""
 voice_characteristic = "00001143-0000-1000-8000-00805f9b34fb"
 
 connection = Connection(
