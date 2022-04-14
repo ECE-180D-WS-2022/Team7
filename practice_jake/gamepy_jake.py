@@ -5,10 +5,12 @@
 
 
 import pygame
+import random
 from sys import exit
 from random import randint, choice
 from math import atan, radians, cos, sin
 from pygame import mixer
+
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
@@ -110,9 +112,10 @@ def display_score():
 
 
 #DEFINITION FOR RANDOM PING PONG Sound
-#def random_pp():
-
-
+def random_pp():
+    list1 = [1,2,3,4,5,6]
+    x1 = random.choice(list1)
+    return x1
 #def collision_sprite():
 #    if pygame.sprite.spritecollide(.sprite,obstacle_group,False):
 #        obstacle_group.empty()
@@ -211,7 +214,8 @@ while True:
             # if the ball is deleted
             if not ball:
                 is_throw = False
-                pong_Sound = mixer.Sound('audio/pingpong1.mp3')
+                rand_pp = random_pp()
+                pong_Sound = mixer.Sound('audio/pingpongsounds/pingpong'+str(rand_pp)+'.mp3')
                 pong_Sound.play()
                 power.reset()
         # if not throwing, keep adjusting powerbar
