@@ -143,22 +143,19 @@ class Connection:
                 while True:
                     for service in self.client.services:
                         for char in service.characteristics:
+                            print ('characteristic =', str(char))
+                            print ('characteristic type =', str(type(char)))
                             if "read" in char.properties:
+                                # TODO: need to differentiate between the properties
+                                # maybe can use the char uuid
                                 value = bytes(await self.client.read_gatt_char(char.uuid))
                                 max_x = struct.unpack('f', value)
                                 if max_x != self.velocity:
                                     self.velocity = max_x
                                     print('velocity = ', self.velocity)
-                                    self.mqtt_client.reconnect()
                                     publish_result = self.mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
                                     print(publish_result)
  
-                # await self.client.start_notify(
-                #     self.max_x_characteristic, self.max_x_characteristic_handler,
-                # )
-                # await self.client.start_notify(
-                #     self.max_z_characteristic, self.max_z_characteristic_handler,
-                # )
             else:
                 print(f"Failed to connect to {self.connected_device.name}")
         except Exception as e:
@@ -166,8 +163,7 @@ class Connection:
     
     async def cleanup(self):
         if self.client:
-            await self.client.stop_notify(max_x_characteristic)
-            await self.client.stop_notify(max_z_characteristic)
+            # await self.client.stop_notify(max_x_characteristic)
             await self.client.disconnect()
 
     async def select_device(self):
@@ -303,7 +299,7 @@ print(game_mode)
 
 loop = asyncio.get_event_loop()
 max_x_characteristic = "00001142-0000-1000-8000-00805f9b34fb"
-max_z_characteristic = "00001143-0000-1000-8000-00805f9b34fb"
+voice_characteristic = "00001143-0000-1000-8000-00805f9b34fb"
 
 connection = Connection(
     loop, max_x_characteristic, max_z_characteristic, mqtt_client)
