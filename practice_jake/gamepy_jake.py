@@ -108,6 +108,11 @@ def display_score():
     screen.blit(score_surf,score_rect)
     return current_time
 
+
+#DEFINITION FOR RANDOM PING PONG Sound
+#def random_pp():
+
+
 #def collision_sprite():
 #    if pygame.sprite.spritecollide(.sprite,obstacle_group,False):
 #        obstacle_group.empty()
@@ -123,7 +128,7 @@ test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
 game_active = False
 start_time = 0
 score = 0
-bg_music = pygame.mixer.Sound('audio/poolparty.wav')
+bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
 bg_music.play(loops = -1)
 
 #Groups
