@@ -287,12 +287,14 @@ def choose_level():
     # game mode 4: Venus (purple)
     return mode
 
+'''
 while True:
     if command=='start': 
         break
     else:
         continue
-        
+'''
+     
 game_mode = choose_level()
 print(game_mode)
 
