@@ -63,7 +63,7 @@ else:
     camera = cv2.VideoCapture(args["video"])
     
     
-    
+'''
 # obtain audio from the microphone
 
 r = sr.Recognizer()
@@ -80,7 +80,7 @@ except sr.RequestError as e:
 
 
 command = r.recognize_sphinx(audio)
-
+'''
 class Connection:
     
     client: BleakClient = None
