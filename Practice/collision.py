@@ -8,37 +8,35 @@ BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 
-# Ball size is 16x16
-
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         
-        self.player_walk = pygame.image.load('graphics/player/player_walk_1.png').convert_alpha()
-        self.image = self.player_walk
-        self.player_jump = pygame.image.load('graphics/player/jump.png').convert_alpha()
+        self.sprites = []
+        self.is_animating = False
+        self.sprites.append(pygame.image.load('graphics/player/player1.png'))
+        self.sprites.append(pygame.image.load('graphics/player/player2.png'))
+        self.sprites.append(pygame.image.load('graphics/player/player3.png'))
+        self.sprites.append(pygame.image.load('graphics/player/player4.png'))
+        self.current_sprite = 0
+        self.image = self.sprites[self.current_sprite]
+        self.image = pygame.transform.scale(self.image, (78, 186))
+        self.rect = self.image.get_rect(midbottom = (160,630))
 
-        self.rect = self.image.get_rect(midbottom = (80,300))
-        self.gravity = 0
-
-        self.jump_sound = pygame.mixer.Sound('audio/jump.mp3')
-        self.jump_sound.set_volume(0.5)
-
-    def player_input(self):
+    def animate(self):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE] and self.rect.bottom >= 300:
-            self.gravity = -20
-            self.jump_sound.play()
-
-    def apply_gravity(self):
-        self.gravity += 1
-        self.rect.y += self.gravity
-        if self.rect.bottom >= 300:
-            self.rect.bottom = 300
+        if keys[pygame.K_RETURN] and self.current_sprite == 0:
+            self.is_animating = True
 
     def update(self):
-        self.player_input()
-        self.apply_gravity()
+        self.animate()
+        if self.is_animating == True:
+            self.current_sprite += 0.15
+            if self.current_sprite >= len(self.sprites):
+                self.current_sprite = 0
+                self.is_animating = False
+            self.image = self.sprites[int(self.current_sprite)]
+            self.image = pygame.transform.scale(self.image, (78, 186))
         
 class Cup(pygame.sprite.Sprite):
     def __init__(self,x_pos):
@@ -47,7 +45,7 @@ class Cup(pygame.sprite.Sprite):
         self.cup = pygame.image.load('graphics/cups/cup.png').convert_alpha()
         self.image = self.cup
 
-        self.rect = self.image.get_rect(midbottom = (x_pos,300))
+        self.rect = self.image.get_rect(midbottom = (x_pos,600))
 
 
 class Ball(pygame.sprite.Sprite):
@@ -70,7 +68,7 @@ class Ball(pygame.sprite.Sprite):
         self.prev_state = self.state
         self.state[0] = self.prev_state[0] + 0.05*self.prev_state[2]
         self.state[1] = self.prev_state[1] + 0.05*self.prev_state[3]
-        self.state[3] = self.prev_state[3] + 9.8*0.05
+        self.state[3] = self.prev_state[3] + 7*0.05
 
     def draw(self, surface):
         rect = self.image.get_rect()
@@ -144,6 +142,8 @@ class SideRim(pygame.sprite.Sprite):
 class World:
     def __init__(self):
         self.rim = []
+        self.collision_sound = pygame.mixer.Sound('audio/pingpong1.mp3')
+        self.collision_sound.set_volume(1)
 
     def add_ball(self):
         ball = Ball()
@@ -171,14 +171,15 @@ class World:
         self.check_rim_collision()
         self.ball.update(power)
         # ball is out of bounds -> reset
-        if (self.ball.state[0] > 850 or self.ball.state[1] > 400):
+        if (self.ball.state[0] > 1250 or self.ball.state[1] > 600):
             reset = True
         return reset
 
     def check_rim_collision(self):
         pos_i = self.ball.state[0:2]
-        if (np.abs(self.ball.state[0]-480) < 10) and (np.abs(self.ball.state[1]-260) < 30) and (self.ball.state[2] > 0):
+        if (np.abs(self.ball.state[0]-980) < 5) and (np.abs(self.ball.state[1]-560) < 30) and (self.ball.state[2] > 0):
             self.ball.state[2] *= -1
+            self.collision_sound.play()
         for j in range(0, len(self.rim)):
             pos_j = np.array(self.rim[j].state[0:2])
             dist_ij = np.sqrt(np.sum((pos_i - pos_j) ** 2))
@@ -190,25 +191,20 @@ class World:
                 new_ball_state = pos_i - pos_j
                 if (new_ball_state[1] >= new_ball_state[0]) and (new_ball_state[1] < -1*new_ball_state[0]):
                     self.ball.state[2] *= -1
-#                if (new_ball_state[1] >= new_ball_state[0]) and (new_ball_state[1] >= -1*new_ball_state[0]):
-#                    self.ball.state[3] *= -1
-#                if (new_ball_state[1] < new_ball_state[0]) and (new_ball_state[1] >= -1*new_ball_state[0]):
-#                    self.ball.state[2] *= -1
-#                if (new_ball_state[1] < new_ball_state[0]) and (new_ball_state[1] >= -1*new_ball_state[0]):
-#                    self.ball.state[3] *= -1
+                    self.collision_sound.play()
         return
 
 # start of main code
 pygame.init()
-screen = pygame.display.set_mode((800,400))
+screen = pygame.display.set_mode((1200,800))
 pygame.display.set_caption('Bruin Pong')
 clock = pygame.time.Clock()
 test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
 game_active = False
 start_time = 0
 score = 0
-#bg_music = pygame.mixer.Sound('audio/music.wav')
-#bg_music.play(loops = -1)
+bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
+bg_music.play(loops = -1)
 
 #Groups
 player = pygame.sprite.GroupSingle()
@@ -216,8 +212,8 @@ player.add(Player())
 cup_group = pygame.sprite.Group()
 world = World()
 
-sky_surface = pygame.image.load('graphics/Sky.png').convert()
-ground_surface = pygame.image.load('graphics/ground.png').convert()
+sky_surface = pygame.image.load('graphics/bruinpong.png').convert()
+ground_surface = pygame.image.load('graphics/table.jpeg').convert()
 
 # Intro screen
 player_stand = pygame.image.load('graphics/player/player_stand.png').convert_alpha()
@@ -250,7 +246,7 @@ while True:
         if game_active:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 power_value = power.ret_power()
-                angle = 0.785
+                angle = 0.9
                 vel = power_value/1.25+20
                 vel_x = vel * cos(angle)
                 vel_y = -vel * sin(angle)
@@ -266,12 +262,12 @@ while True:
                 start_time = int(pygame.time.get_ticks())
                 power = PowerBar()
                 
-                world.add_ball().set_pos([100, 280])
-                world.add_rim().set_pos([475, 225])
-                world.add_rim().set_pos([525, 225])
-                world.add_siderim().set_pos([480, 270])
+                world.add_ball().set_pos([130, 470])
+                world.add_rim().set_pos([975, 525])
+                world.add_rim().set_pos([1025, 525])
+                world.add_siderim().set_pos([980, 560])
 
-                cup_group.add(Cup(500))
+                cup_group.add(Cup(1000))
                 #cup_group.add(Cup(600))
                 #cup_group.add(Cup(700))
 
@@ -279,15 +275,15 @@ while True:
     if game_active:
         # game page background
         screen.blit(sky_surface,(0,0))
-        screen.blit(ground_surface,(0,300))
+        screen.blit(ground_surface,(0,600))
         score = display_score()
         
         # game page sprites
         player.draw(screen)
         player.update()
-        cup_group.draw(screen)
         power.draw(screen)
         world.draw(screen)
+        cup_group.draw(screen)
         
         # if throwing
         if is_throw:
@@ -296,7 +292,7 @@ while True:
             if world.update(power_value):
                 is_throw = False
                 power.reset()
-                world.ball.set_pos([100, 250])
+                world.ball.set_pos([130, 470])
         # if not throwing, keep adjusting powerbar
         else:
             power.move_bar()
