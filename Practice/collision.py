@@ -177,7 +177,7 @@ class World:
 
     def check_rim_collision(self):
         pos_i = self.ball.state[0:2]
-        if (np.abs(self.ball.state[0]-980) < 5) and (np.abs(self.ball.state[1]-560) < 30) and (self.ball.state[2] > 0):
+        if (np.abs(self.ball.state[0]-780) < 5) and (np.abs(self.ball.state[1]-560) < 30) and (self.ball.state[2] > 0):
             self.ball.state[2] *= -1
             self.collision_sound.play()
         for j in range(0, len(self.rim)):
@@ -263,13 +263,17 @@ while True:
                 power = PowerBar()
                 
                 world.add_ball().set_pos([130, 470])
-                world.add_rim().set_pos([975, 525])
-                world.add_rim().set_pos([1025, 525])
-                world.add_siderim().set_pos([980, 560])
+                world.add_rim().set_pos([775, 525])
+                world.add_rim().set_pos([825, 525])
+                world.add_rim().set_pos([834, 525])
+                world.add_rim().set_pos([884, 525])
+                world.add_rim().set_pos([894, 525])
+                world.add_rim().set_pos([944, 525])
+                world.add_siderim().set_pos([780, 560])
 
-                cup_group.add(Cup(1000))
-                #cup_group.add(Cup(600))
-                #cup_group.add(Cup(700))
+                cup_group.add(Cup(800))
+                cup_group.add(Cup(860))
+                cup_group.add(Cup(920))
 
     # update game page
     if game_active:
