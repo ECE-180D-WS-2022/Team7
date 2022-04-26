@@ -15,7 +15,8 @@ receieved_msg = 0
 
 global msg_receieved
 msg_receieved = 0
-global is_voice = 0
+global is_voice
+is_voice = 0
 
 def on_connect(client, userdata, flags, rc):
   print("Connection returned result: "+str(rc))
