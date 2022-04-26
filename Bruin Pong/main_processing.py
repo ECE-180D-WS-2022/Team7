@@ -144,8 +144,8 @@ class Connection:
                 while True:
                     for service in self.client.services:
                         for char in service.characteristics:
-                            print ('characteristic =', str(char))
-                            print ('characteristic type =', str(type(char)))
+                            # print ('characteristic =', str(char))
+                            # print ('characteristic type =', str(type(char)))
                             if "read" in char.properties:
                                 # TODO: need to differentiate between the properties
                                 # maybe can use the char uuid

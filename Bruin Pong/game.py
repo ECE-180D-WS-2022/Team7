@@ -263,12 +263,16 @@ while True:
         else:
             # TODO: add the voice activation here for navigation
             if msg_receieved and is_voice:
-                voice_command_list = ['start', 'rules']
+                voice_command_list = ['start', 'rules', 'single', 'multi']
                 voice_command = int(receieved_msg)
                 if voice_command_list[voice_command ] == 'start':
                     game_active = True
                 elif voice_command_list[voice_command ] == 'rules':
                     # TODO: navigate to a rules page here
+                    game_active = True
+                elif voice_command_list[voice_command ] == 'single':
+                    game_active = True
+                elif voice_command_list[voice_command ] == 'multi':
                     game_active = True
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
