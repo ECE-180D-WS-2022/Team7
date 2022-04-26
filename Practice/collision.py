@@ -8,12 +8,15 @@ BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 
+# Player Sprite Object
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         
         self.sprites = []
+        # animates when is_throw is true
         self.is_animating = False
+        # four images to simulate animation
         self.sprites.append(pygame.image.load('graphics/player/player1.png'))
         self.sprites.append(pygame.image.load('graphics/player/player2.png'))
         self.sprites.append(pygame.image.load('graphics/player/player3.png'))
@@ -25,11 +28,13 @@ class Player(pygame.sprite.Sprite):
 
     def animate(self):
         keys = pygame.key.get_pressed()
+        # if return key is pressed and on first image, animate the player
         if keys[pygame.K_RETURN] and self.current_sprite == 0:
             self.is_animating = True
 
     def update(self):
         self.animate()
+        # animation code
         if self.is_animating == True:
             self.current_sprite += 0.15
             if self.current_sprite >= len(self.sprites):
@@ -37,7 +42,8 @@ class Player(pygame.sprite.Sprite):
                 self.is_animating = False
             self.image = self.sprites[int(self.current_sprite)]
             self.image = pygame.transform.scale(self.image, (78, 186))
-        
+ 
+# Cup Sprite Object
 class Cup(pygame.sprite.Sprite):
     def __init__(self,x_pos):
         super().__init__()
@@ -47,13 +53,14 @@ class Cup(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect(midbottom = (x_pos,600))
 
-
+# Ball Sprite Object
 class Ball(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         
         self.image = pygame.image.load('graphics/ball/ball.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (16, 16))
+        # [x coord, y coord, x vel, y vel]
         self.prev_state = [0, 0, 0, 0]
         self.state = [0, 0, 0, 0]
         self.radius = 16
@@ -71,9 +78,9 @@ class Ball(pygame.sprite.Sprite):
         self.state[3] = self.prev_state[3] + 7*0.05
 
     def draw(self, surface):
-        rect = self.image.get_rect()
-        rect.center = (self.state[0], self.state[1])
-        surface.blit(self.image, rect)
+        self.rect = self.image.get_rect()
+        self.rect.center = (self.state[0], self.state[1])
+        surface.blit(self.image, self.rect)
 
 class PowerBar:
     def __init__(self):
@@ -95,6 +102,43 @@ class PowerBar:
     def reset(self):
         self.power = 0
         self.direction = 1
+        
+def collision_sprite():
+    collision = pygame.sprite.spritecollide(world.ball,cup_group,False)
+    
+    if collision:
+        if world.ball.rect.top < (collision[0].rect.top):
+#            print(world.ball.rect.bottom)
+#            print(collision[0].rect.top)
+            collision[0].kill()
+            is_throw = False
+            power.reset()
+            if world.ball.state[0]>775 and world.ball.state[0]<825:
+                world.rim[0].set_pos([1300,300])
+                world.rim[1].set_pos([1300,300])
+#                for r in world.rim:
+#                    if r.state[0] != 1300:
+#                        world.siderim.set_pos([r.state[0]+5,560])
+#                        break
+            elif world.ball.state[0]>834 and world.ball.state[0]<884:
+                world.rim[2].set_pos([1300,300])
+                world.rim[3].set_pos([1300,300])
+            elif world.ball.state[0]>894 and world.ball.state[0]<944:
+                world.rim[4].set_pos([1300,300])
+                world.rim[5].set_pos([1300,300])
+            elif world.ball.state[0]>954 and world.ball.state[0]<1004:
+                world.rim[6].set_pos([1300,300])
+                world.rim[7].set_pos([1300,300])
+            elif world.ball.state[0]>1014 and world.ball.state[0]<1064:
+                world.rim[8].set_pos([1300,300])
+                world.rim[9].set_pos([1300,300])
+            world.ball.set_pos([130, 1000])
+            return True
+    else:
+        return False
+
+def first_cup():
+    index = 0
 
 def display_score():
     current_time = int(pygame.time.get_ticks()) - start_time
@@ -121,23 +165,23 @@ class Rim(pygame.sprite.Sprite):
         rect.center = (self.state[0], self.state[1])
         surface.blit(self.image, rect)
         
-class SideRim(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-
-        self.image = pygame.image.load('graphics/ball/disk-red.png')
-        self.radius = 5
-        self.image = pygame.transform.scale(self.image, (self.radius * 2, self.radius * 12))
-        self.state = [0, 0]
-
-    def set_pos(self, pos):
-        self.state[0:2] = pos
-        return self
-
-    def draw(self, surface):
-        rect = self.image.get_rect()
-        rect.center = (self.state[0], self.state[1])
-        surface.blit(self.image, rect)
+#class SideRim(pygame.sprite.Sprite):
+#    def __init__(self):
+#        pygame.sprite.Sprite.__init__(self)
+#
+#        self.image = pygame.image.load('graphics/ball/disk-red.png')
+#        self.radius = 5
+#        self.image = pygame.transform.scale(self.image, (self.radius * 2, self.radius * 12))
+#        self.state = [0, 0]
+#
+#    def set_pos(self, pos):
+#        self.state[0:2] = pos
+#        return self
+#
+#    def draw(self, surface):
+#        rect = self.image.get_rect()
+#        rect.center = (self.state[0], self.state[1])
+#        surface.blit(self.image, rect)
 
 class World:
     def __init__(self):
@@ -155,16 +199,16 @@ class World:
         self.rim.append(rim)
         return rim
 
-    def add_siderim(self):
-        siderim = SideRim()
-        self.siderim = siderim
-        return siderim
+#    def add_siderim(self):
+#        siderim = SideRim()
+#        self.siderim = siderim
+#        return siderim
         
     def draw(self, screen):
         self.ball.draw(screen)
         for rim in self.rim:
             rim.draw(screen)
-        self.siderim.draw(screen)
+#        self.siderim.draw(screen)
             
     def update(self, power):
         reset = False
@@ -177,9 +221,9 @@ class World:
 
     def check_rim_collision(self):
         pos_i = self.ball.state[0:2]
-        if (np.abs(self.ball.state[0]-780) < 5) and (np.abs(self.ball.state[1]-560) < 30) and (self.ball.state[2] > 0):
-            self.ball.state[2] *= -1
-            self.collision_sound.play()
+#        if (np.abs(self.ball.state[0]-780) < 5) and (np.abs(self.ball.state[1]-560) < 30) and (self.ball.state[2] > 0):
+#            self.ball.state[2] *= -1
+#            self.collision_sound.play()
         for j in range(0, len(self.rim)):
             pos_j = np.array(self.rim[j].state[0:2])
             dist_ij = np.sqrt(np.sum((pos_i - pos_j) ** 2))
@@ -269,11 +313,17 @@ while True:
                 world.add_rim().set_pos([884, 525])
                 world.add_rim().set_pos([894, 525])
                 world.add_rim().set_pos([944, 525])
-                world.add_siderim().set_pos([780, 560])
+                world.add_rim().set_pos([954, 525])
+                world.add_rim().set_pos([1004, 525])
+                world.add_rim().set_pos([1014, 525])
+                world.add_rim().set_pos([1064, 525])
+#                world.add_siderim().set_pos([780, 560])
 
                 cup_group.add(Cup(800))
                 cup_group.add(Cup(860))
                 cup_group.add(Cup(920))
+                cup_group.add(Cup(980))
+                cup_group.add(Cup(1040))
 
     # update game page
     if game_active:
@@ -292,7 +342,18 @@ while True:
         # if throwing
         if is_throw:
             world.update(power_value)
+#            if world.ball.state[1]=520 and world.ball.state[0]-800<=20
+                
+#            for cup in cup_group:
+#                collide = world.ball.rect.colliderect(cup.rect)
+#                if collide:
+#                    cup.kill()
+#                    is_throw = False
+#                    power.reset()
+#                    world.ball.set_pos([130, 470])
             # if the ball is deleted
+            collision_sprite()
+            
             if world.update(power_value):
                 is_throw = False
                 power.reset()
