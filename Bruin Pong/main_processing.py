@@ -97,6 +97,7 @@ class Connection:
         self.max_z_characteristic = max_z_characteristic
         self.mqtt_client = mqtt_client
         self.velocity = 0
+        self.voice_command = 0
         
         # Device state
         self.connected = False
@@ -149,11 +150,17 @@ class Connection:
                                 # TODO: need to differentiate between the properties
                                 # maybe can use the char uuid
                                 value = bytes(await self.client.read_gatt_char(char.uuid))
-                                max_x = struct.unpack('f', value)
-                                if max_x != self.velocity:
-                                    self.velocity = max_x
-                                    print('velocity = ', self.velocity)
-                                    publish_result = self.mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
+                                # velocity
+                                if str(char) == '00001142-0000-1000-8000-00805f9b34fb':
+                                    max_x = struct.unpack('f', value)
+                                    if max_x != self.velocity:
+                                        self.velocity = max_x
+                                        print('velocity = ', self.velocity)
+                                        publish_result = self.mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
+                                        print(publish_result)
+                                elif str(char) == '00001143-0000-1000-8000-00805f9b34fb':
+                                    self.voice_command = value
+                                    publish_result = self.mqtt_client.publish('ece180d/team7/pygame', self.voice_command, qos=1)
                                     print(publish_result)
  
             else:

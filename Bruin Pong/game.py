@@ -15,6 +15,7 @@ receieved_msg = 0
 
 global msg_receieved
 msg_receieved = 0
+global is_voice = 0
 
 def on_connect(client, userdata, flags, rc):
   print("Connection returned result: "+str(rc))
@@ -33,10 +34,14 @@ def on_disconnect(client, userdata, rc):
 def on_message(client, userdata, message): 
   print('Received message: "' + str(message.payload) + '" on topic "' + 
         message.topic + '" with QoS ' + str(message.qos))
-  global msg_receieved, receieved_msg
+  global msg_receieved, receieved_msg, is_voice
   msg_receieved = 1
   message.payload = message.payload.decode("utf-8")
   receieved_msg = message.payload
+  if len(receieved_msg) == 1:
+      is_voice = 1
+  else:
+      is_voice = 0
 
 client = mqtt.Client()
 # add additional client options (security, certifications, etc.)
@@ -247,7 +252,7 @@ while True:
         # press return key to throw ball if on game page
         if game_active:
             # if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-            if msg_receieved:
+            if msg_receieved and not is_voice:
                 is_throw = True
                 time = 0
                 ball.add(Ball(float(receieved_msg), 2))
@@ -256,6 +261,16 @@ while True:
         
         # on home page, press space to enter game page
         else:
+            # TODO: add the voice activation here for navigation
+            if msg_receieved and is_voice:
+                voice_command_list = ['start', 'rules']
+                voice_command = int(receieved_msg)
+                if voice_command_list[voice_command ] == 'start':
+                    game_active = True
+                elif voice_command_list[voice_command ] == 'rules':
+                    # TODO: navigate to a rules page here
+                    game_active = True
+
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 game_active = True
                 
