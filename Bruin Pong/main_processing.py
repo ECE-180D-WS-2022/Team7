@@ -160,7 +160,7 @@ class Connection:
                                         print(publish_result)
                                 elif str(char.uuid) == '00001143-0000-1000-8000-00805f9b34fb':
                                     self.voice_command = struct.unpack('i', value)
-                                    publish_result = self.mqtt_client.publish('ece180d/team7/pygame', int(self.voice_command), qos=1)
+                                    publish_result = self.mqtt_client.publish('ece180d/team7/pygame', int(self.voice_command[0]), qos=1)
                                     print(publish_result)
  
             else:
