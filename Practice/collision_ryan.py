@@ -3,10 +3,43 @@ import numpy as np
 from sys import exit
 from random import randint, choice
 from math import atan, radians, cos, sin
+import cv2
+import argparse
+
+ap = argparse.ArgumentParser()
+ap.add_argument("-v", "--video", help="path to the (optional) video file")
+ap.add_argument("-b", "--buffer", type=int, default=64, help="max buffer size")
+args = vars(ap.parse_args())
+
+
+def cameraOn():
+    if not args.get("video", False):
+        camera = cv2.VideoCapture(0)
+
+    else:
+        camera = cv2.VideoCapture(args["video"])
+        
+        
+    while True:
+        
+        (grabbed, frame) = camera.read()
+        if args.get("video") and not grabbed:
+            break
+        cv2.imshow("Frame", frame)
+        
+      
+        key = cv2.waitKey(1) & 0xFF
+        # press 'q' to stop the loop
+        if key == ord("q"):
+            break
+
+    camera.release()
+    cv2.destroyAllWindows()
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
+WHITE = (255, 255, 255)
 player_num = 1
 
 # Player Sprite Object
@@ -18,6 +51,7 @@ class Player(pygame.sprite.Sprite):
             self.sprites = []
             # animates when is_throw is true
             self.is_animating = False
+            self.is_switching = False
             # four images to simulate animation
             self.sprites.append(pygame.image.load('graphics/player/ninja1.png'))
             self.sprites.append(pygame.image.load('graphics/player/ninja2.png'))
@@ -32,6 +66,7 @@ class Player(pygame.sprite.Sprite):
             self.sprites = []
             # animates when is_throw is true
             self.is_animating = False
+            self.is_switching = False
             # four images to simulate animation
             self.sprites.append(pygame.image.load('graphics/player/player1.png'))
             self.sprites.append(pygame.image.load('graphics/player/player2.png'))
@@ -50,14 +85,29 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         self.animate()
+        #self.switch()
+        if self.is_switching == True:
+            if self.rect.x > 90:
+                self.rect.x = 50
+            elif self.rect.x < 80:
+                self.rect.x = 120
+            self.is_switching = False
         # animation code
         if self.is_animating == True:
             self.current_sprite += 0.15
             if self.current_sprite >= len(self.sprites):
                 self.current_sprite = 0
                 self.is_animating = False
+                self.is_switching= True
             self.image = self.sprites[int(self.current_sprite)]
             self.image = pygame.transform.scale(self.image, (78, 186))
+            
+    def switch(self):
+        keys = pygame.key.get_pressed()
+        # if return key is pressed and on first image, animate the player
+        if keys[pygame.K_RETURN] and self.current_sprite == 0:
+            self.is_switching = True
+
  
 # Cup Sprite Object
 class Cup(pygame.sprite.Sprite):
@@ -104,8 +154,8 @@ class PowerBar:
         self.direction = 1
 
     def draw(self, screen):
-        pygame.draw.rect(screen, BLACK, (250, 100, 300, 50), 1)
-        pygame.draw.rect(screen, BLUE, (250, 100, self.power*3, 50), 0)
+        pygame.draw.rect(screen, BLACK, (450, 70, 300, 50), 1)
+        pygame.draw.rect(screen, BLUE, (450, 70, self.power*3, 50), 0)
 
     def move_bar(self):
         self.power += self.direction
@@ -158,32 +208,41 @@ def first_cup():
 
 def display_score(score, num):
     #current_time = int(pygame.time.get_ticks()) - start_time
-    score_surf = test_font.render(f'Score: {score}',False,(64,64,64))
+    score_surf = test_font.render(f'Score: {score}',False, BLACK)
     if num == 1:
-        score_rect = score_surf.get_rect(center = (200,80))
+        score_rect = score_surf.get_rect(center = (200,150))
     elif num == 2:
-        score_rect = score_surf.get_rect(center = (200,200))
+        score_rect = score_surf.get_rect(center = (200,250))
     screen.blit(score_surf,score_rect)
     return True
 
 def display_throw(throw, num):
-    throw_surf = test_font.render(f'throws: {throw}',False,(64,64,64))
+    throw_surf = test_font.render(f'throws: {throw}',False,BLACK)
     if num == 1:
-        throw_rect = throw_surf.get_rect(center = (400,80))
+        throw_rect = throw_surf.get_rect(center = (400,150))
     elif num == 2:
-        throw_rect = throw_surf.get_rect(center = (400,200))
+        throw_rect = throw_surf.get_rect(center = (400,250))
     screen.blit(throw_surf,throw_rect)
     return True
 
 
 def display_player(num):
-    player_surf = test_font.render(f'Player: {num}',False,(64,64,64))
+    player_surf = player_font.render(f'Player: {num}',False,(64,64,64))
     if num == 1:
-        player_rect = player_surf.get_rect(center = (100,50))
+        player_rect = player_surf.get_rect(center = (200,100))
     elif num == 2:
-        player_rect = player_surf.get_rect(center = (100,150))
+        player_rect = player_surf.get_rect(center = (200,200))
     screen.blit(player_surf, player_rect)
     return player
+
+def arrow(num):
+    arrow_surf = player_font.render('>',False,WHITE)
+    if num == 1:
+        arrow_rect = arrow_surf.get_rect(center = (80,95))
+    elif num == 2:
+        arrow_rect = arrow_surf.get_rect(center = (80,195))
+    screen.blit(arrow_surf, arrow_rect)
+    return arrow
 
 class Rim(pygame.sprite.Sprite):
     def __init__(self):
@@ -282,6 +341,12 @@ screen = pygame.display.set_mode((1200,800))
 pygame.display.set_caption('Bruin Pong')
 clock = pygame.time.Clock()
 test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
+player_font = pygame.font.Font('font/Pixeltype.ttf', 70)
+
+def font_size(num):
+    return pygame.font.Font('font/Pixeltype.ttf', num)
+
+
 game_active = False
 start_time = 0
 
@@ -305,15 +370,21 @@ sky_surface = pygame.image.load('graphics/bruinpong.png').convert()
 ground_surface = pygame.image.load('graphics/table.jpeg').convert()
 
 # Intro screen
-player_stand = pygame.image.load('graphics/player/player_stand.png').convert_alpha()
+player_stand = pygame.image.load('graphics/main_copy.png').convert_alpha()
 player_stand = pygame.transform.rotozoom(player_stand,0,2)
-player_stand_rect = player_stand.get_rect(center = (400,200))
+player_stand_rect = player_stand.get_rect(center = (600,500))
 
-game_name = test_font.render('Bruin Pong',False,(111,196,169))
-game_name_rect = game_name.get_rect(center = (400,80))
+game_name = font_size(150).render('Bruin Pong',False, BLACK)
+game_name_rect = game_name.get_rect(center = (600,200))
 
-game_message = test_font.render('space: single player, M: multiplayer',False,(111,196,169))
+game_message = test_font.render('Press space for SinglePlayer',False,BLACK)
 game_message_rect = game_message.get_rect(center = (400,330))
+
+game_message2 = test_font.render('Press m for Multiplayer',False,BLACK)
+game_message_rect2 = game_message.get_rect(center = (400,400))
+
+game_message3 = test_font.render('Press r for Rules',False,BLACK)
+game_message_rect3 = game_message.get_rect(center = (400,470))
 
 # Timer
 ball_timer = pygame.USEREVENT + 1
@@ -331,7 +402,7 @@ score2 = 0
 score_num2 = 0
 throw2 = 0
 throw_num2 = 0
-
+arrowNum = 1
 #single and multiplayer modes
 single_mode_active = False
 multiplayer_mode_active = False
@@ -354,6 +425,10 @@ while True:
                 vel_y = -vel * sin(angle)
                 is_throw = True
                 world.ball.set_vel([vel_x,vel_y])
+                
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_c: 
+                #print('camera')
+                cameraOn()
         
         # on home page, press space to enter game page
         else:
@@ -416,7 +491,7 @@ while True:
         player.draw(screen)
         player.update()
         
-        
+        arrow = arrow(1)
         
         power.draw(screen)
         world.draw(screen)
@@ -476,8 +551,15 @@ while True:
         
         
         score = display_score(score_num, 1)
+        score2 = display_score(score_num2, 2)
+        
         playerNum = display_player(1)
+        playerNum2 = display_player(2)
+        
+        arrow = arrow(arrowNum)
+        
         throw = display_throw(throw_num, 1)
+        throw2 = display_throw(throw_num2, 2)
         
         # if throwing
         if is_throw:
@@ -493,16 +575,27 @@ while True:
 #                    world.ball.set_pos([130, 470])
             # if the ball is deleted
             if collision_sprite():
-                score_num += 1
+                if arrowNum == 1:
+                    score_num += 1
+                else:
+                    score_num2 += 1
                 
-                if len(cup_group) == 0:
-                    multiplayer_mode_active = False
+            if len(cup_group) == 0:
+                multiplayer_mode_active = False
 
                
             
             if world.update(power_value):
+                if arrowNum == 1:
+                    throw_num += 1
+                    arrowNum = 2
+                else:
+                    throw_num2 += 1
+                    arrowNum = 1
+                    
+                
                 is_throw = False
-                throw_num += 1
+    
                 power.reset()
                 world.ball.set_pos([130, 470])
                 
@@ -516,11 +609,14 @@ while True:
         screen.fill((94,129,162))
         screen.blit(player_stand,player_stand_rect)
       
-        score_message = test_font.render(f'Your score: {score_num} / {throw_num}',False,(111,196,169))
+        score_message = test_font.render(f'Your score: {score_num} / {throw_num}',False,BLACK)
         score_message_rect = score_message.get_rect(center = (400,330))
         screen.blit(game_name,game_name_rect)
 
-        if score == 0: screen.blit(game_message,game_message_rect)
+        if score == 0: 
+            screen.blit(game_message,game_message_rect)
+            screen.blit(game_message2,game_message_rect2)
+            screen.blit(game_message3,game_message_rect3)
         else: screen.blit(score_message,score_message_rect)
 
     # update the display and fps
