@@ -5,6 +5,7 @@
 #include <math.h>
 #include <PDM.h>
 #include <EloquentTinyML.h>      // https://github.com/eloquentarduino/EloquentTinyML
+//#include <eloquent_tinyml/tensorflow.h>
 #include "model.h"       // TF Lite model file
 
 

@@ -17,6 +17,7 @@ global msg_receieved
 msg_receieved = 0
 global is_voice
 is_voice = 0
+skip_first = 0
 
 def on_connect(client, userdata, flags, rc):
   print("Connection returned result: "+str(rc))
@@ -267,7 +268,18 @@ while True:
                 voice_command_list = ['start', 'rules', 'single', 'multi']
                 voice_command = int(receieved_msg)
                 if voice_command_list[voice_command ] == 'start':
+                    if skip_first == 0:
+                        skip_first = 1
+                        continue
                     game_active = True
+                    start_time = int(pygame.time.get_ticks())
+                    power = PowerBar()
+                    
+                    cup_group.add(Cup(440))
+                    cup_group.add(Cup(500))
+                    cup_group.add(Cup(560))
+                    cup_group.add(Cup(620))
+                    cup_group.add(Cup(680))
                 elif voice_command_list[voice_command ] == 'rules':
                     # TODO: navigate to a rules page here
                     game_active = True
@@ -276,7 +288,7 @@ while True:
                 elif voice_command_list[voice_command ] == 'multi':
                     game_active = True
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            '''if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 game_active = True
                 
                 # game page initiations
@@ -287,7 +299,7 @@ while True:
                 cup_group.add(Cup(500))
                 cup_group.add(Cup(560))
                 cup_group.add(Cup(620))
-                cup_group.add(Cup(680))
+                cup_group.add(Cup(680))'''
 
     # update game page
     if game_active:
