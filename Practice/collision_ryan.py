@@ -493,6 +493,8 @@ arrowNum = 1
 single_mode_active = False
 multiplayer_mode_active = False
 gravity_value = 4.9
+text = 'Earth'
+color = (0, 255, 255)
 
 # infinite loop for pygame, only terminates with exiting application
 while True:
@@ -514,7 +516,11 @@ while True:
                 world.ball.set_vel([vel_x,vel_y])
                 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_c:
+               
                 gravity_value = cameraOn()
+                print(gravity_value)
+                
+            
         
         # on home page, press space to enter game page
         else:
@@ -588,6 +594,25 @@ while True:
         playerNum = display_player(1)
         throw = display_throw(throw_num, 1)
         
+        if gravity_value == 2:
+            text = 'Mars'
+            color = (255, 165, 0)
+        elif gravity_value == 5: 
+            text = 'Earth'
+            color = (0, 255, 255)
+        elif gravity_value == 10: 
+            text = 'Jupytor'
+            color = (0, 255, 0)
+        elif gravity_value == 7: 
+            text = 'Venus'
+            color = (230,230,250)
+                
+        gravity_surf = font_size(70).render(f'Planet Mode: {text}',False,color)
+        gravity_rect = gravity_surf.get_rect(center = (800,150))
+          
+        screen.blit(gravity_surf,gravity_rect)
+            
+            
         # if throwing
         if is_throw:
             world.update(power_value,gravity_value)
@@ -613,6 +638,7 @@ while True:
                 throw_num += 1
                 power.reset()
                 world.ball.set_pos([130, 470])
+                
                 
        
         # if not throwing, keep adjusting powerbar
@@ -646,6 +672,23 @@ while True:
         
         throw = display_throw(throw_num, 1)
         throw2 = display_throw(throw_num2, 2)
+        
+        if gravity_value == 2:
+            text = 'Mars'
+            color = (255, 165, 0)
+        elif gravity_value == 5: 
+            text = 'Earth'
+            color = (0, 255, 255)
+        elif gravity_value == 10: 
+            text = 'Jupytor'
+            color = (0, 255, 0)
+        elif gravity_value == 7: 
+            text = 'Venus'
+            color = (230,230,250)
+                
+        gravity_surf = font_size(70).render(f'Planet Mode: {text}',False,color)
+        gravity_rect = gravity_surf.get_rect(center = (800,150))
+        screen.blit(gravity_surf,gravity_rect)
         
         # if throwing
         if is_throw:
