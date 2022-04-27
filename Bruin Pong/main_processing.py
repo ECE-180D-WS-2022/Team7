@@ -165,6 +165,8 @@ class Connection:
                                         publish_result = self.mqtt_client.publish('ece180d/team7/pygame', int(self.voice_command[0]), qos=1)
                                         print(publish_result)
                                     elif voice_command != self.voice_command:
+                                        self.voice_command = voice_command
+                                        print('voice command = ', self.voice_command)
                                         publish_result = self.mqtt_client.publish('ece180d/team7/pygame', int(self.voice_command[0]), qos=1)
                                         print(publish_result)
  
