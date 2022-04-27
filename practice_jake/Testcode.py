@@ -356,12 +356,20 @@ def getsky():
     rnd = getRandom()
     if level == "Earth":
         sky_surface = pygame.image.load('graphics/Levels/Earth/Earth' + str(rnd) + '.png').convert()
+        bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
+        bg_music.play(loops = -1)
     if level == "Mars":
         sky_surface = pygame.image.load('graphics/Levels/Mars/Mars' + str(rnd) + '.png').convert()
+        bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
+        bg_music.play(loops = -1)
     if level == "Jupiter":
         sky_surface = pygame.image.load('graphics/Levels/Jupiter/Jupiter' + str(rnd) + '.png').convert()
+        bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
+        bg_music.play(loops = -1)
     if level == "Venus":
         sky_surface = pygame.image.load('graphics/Levels/Venus/Venus' + str(rnd) + '.png').convert()
+        bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
+        bg_music.play(loops = -1)
 
 
 
