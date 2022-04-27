@@ -97,7 +97,7 @@ class Connection:
         self.max_z_characteristic = max_z_characteristic
         self.mqtt_client = mqtt_client
         self.velocity = 0
-        self.voice_command = 0
+        self.voice_command = None
         
         # Device state
         self.connected = False
@@ -159,9 +159,14 @@ class Connection:
                                         publish_result = self.mqtt_client.publish('ece180d/team7/pygame', float(self.velocity[0]), qos=1)
                                         print(publish_result)
                                 elif str(char.uuid) == '00001143-0000-1000-8000-00805f9b34fb':
-                                    self.voice_command = struct.unpack('i', value)
-                                    publish_result = self.mqtt_client.publish('ece180d/team7/pygame', int(self.voice_command[0]), qos=1)
-                                    print(publish_result)
+                                    voice_command = struct.unpack('i', value)
+                                    if self.voice_command == None:
+                                        self.voice_command = voice_command
+                                        publish_result = self.mqtt_client.publish('ece180d/team7/pygame', int(self.voice_command[0]), qos=1)
+                                        print(publish_result)
+                                    elif voice_command != self.voice_command:
+                                        publish_result = self.mqtt_client.publish('ece180d/team7/pygame', int(self.voice_command[0]), qos=1)
+                                        print(publish_result)
  
             else:
                 print(f"Failed to connect to {self.connected_device.name}")
