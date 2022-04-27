@@ -87,7 +87,10 @@ def cameraOn():
 
                 if radius > 250:
                     detected=True
-                    levelpast = level
+                    if levelpast == level:
+                        levelpast = "unchanged"
+                    else:
+                        levelpast = level
                     if key == "orange":
                             cv2.putText(frame, "Game mode: Mars", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                             mode = 1.86
@@ -356,19 +359,19 @@ def getsky():
     rnd = getRandom()
     if level == "Earth":
         sky_surface = pygame.image.load('graphics/Levels/Earth/Earth' + str(rnd) + '.png').convert()
-        bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
+        bg_music = pygame.mixer.Sound('audio/Levels/Earth/Earth' + str(rnd) + 'mp3')
         bg_music.play(loops = -1)
     if level == "Mars":
         sky_surface = pygame.image.load('graphics/Levels/Mars/Mars' + str(rnd) + '.png').convert()
-        bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
+        bg_music = pygame.mixer.Sound('audio/Levels/Mars/Mars' + str(rnd) + 'mp3')
         bg_music.play(loops = -1)
     if level == "Jupiter":
         sky_surface = pygame.image.load('graphics/Levels/Jupiter/Jupiter' + str(rnd) + '.png').convert()
-        bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
+        bg_music = pygame.mixer.Sound('audio/Levels/Jupiter/Jupiter' + str(rnd) + 'mp3')
         bg_music.play(loops = -1)
     if level == "Venus":
         sky_surface = pygame.image.load('graphics/Levels/Venus/Venus' + str(rnd) + '.png').convert()
-        bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
+        bg_music = pygame.mixer.Sound('audio/Levels/Venus/Venus' + str(rnd) + 'mp3')
         bg_music.play(loops = -1)
 
 
