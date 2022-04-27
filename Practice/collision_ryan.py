@@ -5,12 +5,28 @@ from random import randint, choice
 from math import atan, radians, cos, sin
 import cv2
 import argparse
+import imutils
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-v", "--video", help="path to the (optional) video file")
 ap.add_argument("-b", "--buffer", type=int, default=64, help="max buffer size")
 args = vars(ap.parse_args())
 
+
+# Setup Color Detection
+ap = argparse.ArgumentParser()
+ap.add_argument("-v", "--video", help="path to the (optional) video file")
+ap.add_argument("-b", "--buffer", type=int, default=64, help="max buffer size")
+args = vars(ap.parse_args())
+ 
+
+# Ranges for the balls
+lower = {'orange':(5, 50, 50), 'green':(66, 122, 129), 'blue':(97, 100, 117), 'purple':(129, 50, 70)}
+upper = {'orange':(15,255,255), 'green':(86,255,255), 'blue':(117,255,255), 'purple':(158,255,255)}
+ 
+# Color of texts displayed
+colors = {'orange':(0,140,255), 'green':(0,255,0), 'blue':(255,0,0), 'purple':(230,100,230)}
+modes = {'Mars':1, 'Earth':2, 'Jupytor':3, 'Venus':4}
 
 def cameraOn():
     if not args.get("video", False):
@@ -19,22 +35,92 @@ def cameraOn():
     else:
         camera = cv2.VideoCapture(args["video"])
         
-        
+    mode = 0
+    print('Game launching')
+    # time.sleep(1)
+    print('Choose Game Mode')
+    # time.sleep(3)
+    detected=False
+    count = 0
     while True:
-        
+            
         (grabbed, frame) = camera.read()
         if args.get("video") and not grabbed:
             break
-        cv2.imshow("Frame", frame)
+
+        frame = imutils.resize(frame, width=900)
+
+        blurred = cv2.GaussianBlur(frame, (11, 11), 0)
+        hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
         
-      
+        cv2.putText(frame, "Bring the ball closer to camera", (20,30), cv2.FONT_HERSHEY_SIMPLEX, 1.5 ,[255, 255, 255],2)
+        for key, value in upper.items():
+
+            kernel = np.ones((9,9),np.uint8)
+            mask = cv2.inRange(hsv, lower[key], upper[key])
+            mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+            mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+
+            cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
+                cv2.CHAIN_APPROX_SIMPLE)[-2]
+            center = None
+            
+
+
+            if len(cnts) > 0:
+
+                c = max(cnts, key=cv2.contourArea)
+                ((x, y), radius) = cv2.minEnclosingCircle(c)
+                M = cv2.moments(c)
+                center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+
+
+                if radius > 0.5:
+
+                    cv2.circle(frame, (int(x), int(y)), int(radius), colors[key], 5)
+                    cv2.putText(frame,key + "color", (int(x-radius),int(y-radius)), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
+
+                if radius > 250:
+                    detected=True
+                    if key == "orange":
+                            cv2.putText(frame, "Game mode: Mars", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
+                            mode = 1.86
+                            count = count + 1
+
+                    elif key=="blue":
+                            cv2.putText(frame, "Game mode: Earth", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
+                            mode = 4.9
+                            count = count + 1
+
+                    elif key=="green":
+                            cv2.putText(frame, "Game mode: Jupiter", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
+                            mode = 12.40
+                            count = count + 1
+
+                    elif key=="purple":
+                            cv2.putText(frame, "Game mode: Venus", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
+                            mode = 4.4
+                            count = count + 1
+                    else:
+                        mode = 0
+
+        cv2.imshow("Frame", frame)
         key = cv2.waitKey(1) & 0xFF
         # press 'q' to stop the loop
         if key == ord("q"):
             break
+        if count > 100:
+            break
 
     camera.release()
     cv2.destroyAllWindows()
+        
+    # game mode 1: Mars (Orange)
+    # game mode 2: Earth (Blue)
+    # game mode 3: Jupytor (green)
+    # game mode 4: Venus (purple)
+    return mode
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
@@ -137,11 +223,11 @@ class Ball(pygame.sprite.Sprite):
     def set_vel(self, vel):
         self.state[2:] = vel
             
-    def update(self,power):
+    def update(self,power,gravity_value):
         self.prev_state = self.state
         self.state[0] = self.prev_state[0] + 0.05*self.prev_state[2]
         self.state[1] = self.prev_state[1] + 0.05*self.prev_state[3]
-        self.state[3] = self.prev_state[3] + 7*0.05
+        self.state[3] = self.prev_state[3] + gravity_value*0.05
 
     def draw(self, surface):
         self.rect = self.image.get_rect()
@@ -217,7 +303,7 @@ def display_score(score, num):
     return True
 
 def display_throw(throw, num):
-    throw_surf = test_font.render(f'throws: {throw}',False,BLACK)
+    throw_surf = test_font.render(f'Throws: {throw}',False,BLACK)
     if num == 1:
         throw_rect = throw_surf.get_rect(center = (400,150))
     elif num == 2:
@@ -307,10 +393,10 @@ class World:
             rim.draw(screen)
 #        self.siderim.draw(screen)
             
-    def update(self, power):
+    def update(self, power, gravity_value):
         reset = False
         self.check_rim_collision()
-        self.ball.update(power)
+        self.ball.update(power,gravity_value)
         # ball is out of bounds -> reset
         if (self.ball.state[0] > 1250 or self.ball.state[1] > 600):
             reset = True
@@ -377,13 +463,13 @@ player_stand_rect = player_stand.get_rect(center = (600,500))
 game_name = font_size(150).render('Bruin Pong',False, BLACK)
 game_name_rect = game_name.get_rect(center = (600,200))
 
-game_message = test_font.render('Press space for SinglePlayer',False,BLACK)
+game_message = test_font.render('Press SPACE for Single Player',False,BLACK)
 game_message_rect = game_message.get_rect(center = (400,330))
 
-game_message2 = test_font.render('Press m for Multiplayer',False,BLACK)
+game_message2 = test_font.render('Press M for Multiplayer',False,BLACK)
 game_message_rect2 = game_message.get_rect(center = (400,400))
 
-game_message3 = test_font.render('Press r for Rules',False,BLACK)
+game_message3 = test_font.render('Press R for Rules',False,BLACK)
 game_message_rect3 = game_message.get_rect(center = (400,470))
 
 # Timer
@@ -406,6 +492,7 @@ arrowNum = 1
 #single and multiplayer modes
 single_mode_active = False
 multiplayer_mode_active = False
+gravity_value = 4.9
 
 # infinite loop for pygame, only terminates with exiting application
 while True:
@@ -426,9 +513,8 @@ while True:
                 is_throw = True
                 world.ball.set_vel([vel_x,vel_y])
                 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_c: 
-                #print('camera')
-                cameraOn()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_c:
+                gravity_value = cameraOn()
         
         # on home page, press space to enter game page
         else:
@@ -504,7 +590,7 @@ while True:
         
         # if throwing
         if is_throw:
-            world.update(power_value)
+            world.update(power_value,gravity_value)
 #            if world.ball.state[1]=520 and world.ball.state[0]-800<=20
                 
 #            for cup in cup_group:
@@ -522,7 +608,7 @@ while True:
                     single_mode_active = False
                
             
-            if world.update(power_value):
+            if world.update(power_value,gravity_value):
                 is_throw = False
                 throw_num += 1
                 power.reset()
@@ -563,7 +649,7 @@ while True:
         
         # if throwing
         if is_throw:
-            world.update(power_value)
+            world.update(power_value,gravity_value)
 #            if world.ball.state[1]=520 and world.ball.state[0]-800<=20
                 
 #            for cup in cup_group:
@@ -585,7 +671,7 @@ while True:
 
                
             
-            if world.update(power_value):
+            if world.update(power_value,gravity_value):
                 if arrowNum == 1:
                     throw_num += 1
                     arrowNum = 2
