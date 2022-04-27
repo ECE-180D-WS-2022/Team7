@@ -63,7 +63,7 @@ else:
     camera = cv2.VideoCapture(args["video"])
     
     
-    
+'''
 # obtain audio from the microphone
 
 r = sr.Recognizer()
@@ -80,7 +80,7 @@ except sr.RequestError as e:
 
 
 command = r.recognize_sphinx(audio)
-
+'''
 class Connection:
     
     client: BleakClient = None
@@ -97,6 +97,7 @@ class Connection:
         self.max_z_characteristic = max_z_characteristic
         self.mqtt_client = mqtt_client
         self.velocity = 0
+        self.voice_command = None
         
         # Device state
         self.connected = False
@@ -143,22 +144,32 @@ class Connection:
                 while True:
                     for service in self.client.services:
                         for char in service.characteristics:
+                            # print ('characteristic =', str(char))
+                            # print ('characteristic type =', str(type(char)))
                             if "read" in char.properties:
+                                # TODO: need to differentiate between the properties
+                                # maybe can use the char uuid
                                 value = bytes(await self.client.read_gatt_char(char.uuid))
-                                max_x = struct.unpack('f', value)
-                                if max_x != self.velocity:
-                                    self.velocity = max_x
-                                    print('velocity = ', self.velocity)
-                                    # self.mqtt_client.reconnect()
-                                    publish_result = self.mqtt_client.publish('ece180d/team7/pygame', self.velocity[0], qos=1)
-                                    print(publish_result)
+                                # velocity
+                                if str(char.uuid) == '00001142-0000-1000-8000-00805f9b34fb':
+                                    max_x = struct.unpack('f', value)
+                                    if max_x != self.velocity:
+                                        self.velocity = max_x
+                                        print('velocity = ', self.velocity)
+                                        publish_result = self.mqtt_client.publish('ece180d/team7/pygame', float(self.velocity[0]), qos=1)
+                                        print(publish_result)
+                                elif str(char.uuid) == '00001143-0000-1000-8000-00805f9b34fb':
+                                    voice_command = struct.unpack('i', value)
+                                    if self.voice_command == None:
+                                        self.voice_command = voice_command
+                                        publish_result = self.mqtt_client.publish('ece180d/team7/pygame', int(self.voice_command[0]), qos=1)
+                                        print(publish_result)
+                                    elif voice_command != self.voice_command:
+                                        self.voice_command = voice_command
+                                        print('voice command = ', self.voice_command)
+                                        publish_result = self.mqtt_client.publish('ece180d/team7/pygame', int(self.voice_command[0]), qos=1)
+                                        print(publish_result)
  
-                # await self.client.start_notify(
-                #     self.max_x_characteristic, self.max_x_characteristic_handler,
-                # )
-                # await self.client.start_notify(
-                #     self.max_z_characteristic, self.max_z_characteristic_handler,
-                # )
             else:
                 print(f"Failed to connect to {self.connected_device.name}")
         except Exception as e:
@@ -166,8 +177,7 @@ class Connection:
     
     async def cleanup(self):
         if self.client:
-            await self.client.stop_notify(max_x_characteristic)
-            await self.client.stop_notify(max_z_characteristic)
+            # await self.client.stop_notify(max_x_characteristic)
             await self.client.disconnect()
 
     async def select_device(self):
@@ -291,35 +301,35 @@ def choose_level():
     # game mode 4: Venus (purple)
     return mode
 
-<<<<<<< HEAD:Bruin Pong/main_game.py
+
 # if __name__ == "__main__":
 # logger = logging.getLogger(__name__)
 # logging.basicConfig(level=logging.INFO)
 
-=======
->>>>>>> e0e702c85ad7ccdf48b49f00c4777354db680f4b:Bruin Pong/main_processing.py
+
+'''
+>>>>>>> voice_bluetooth
 while True:
     if command=='start': 
         break
     else:
         continue
+<<<<<<< HEAD
+=======
+'''
 
 game_mode = choose_level()
 print(game_mode)
 
 
-<<<<<<< HEAD:Bruin Pong/main_game.py
-
 
 # mqtt_client.connect_srv("mqtt.eclipseprojects.io")
 
 
-
-=======
->>>>>>> e0e702c85ad7ccdf48b49f00c4777354db680f4b:Bruin Pong/main_processing.py
 loop = asyncio.get_event_loop()
 max_x_characteristic = "00001142-0000-1000-8000-00805f9b34fb"
-max_z_characteristic = "00001143-0000-1000-8000-00805f9b34fb"
+max_z_characteristic = ""
+voice_characteristic = "00001143-0000-1000-8000-00805f9b34fb"
 
 connection = Connection(
     loop, max_x_characteristic, max_z_characteristic, mqtt_client)
