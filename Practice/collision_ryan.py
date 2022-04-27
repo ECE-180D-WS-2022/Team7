@@ -85,22 +85,22 @@ def cameraOn():
                     detected=True
                     if key == "orange":
                             cv2.putText(frame, "Game mode: Mars", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
-                            mode = 1.86
+                            mode = 2
                             count = count + 1
 
                     elif key=="blue":
                             cv2.putText(frame, "Game mode: Earth", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
-                            mode = 4.9
+                            mode = 5
                             count = count + 1
 
                     elif key=="green":
                             cv2.putText(frame, "Game mode: Jupiter", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
-                            mode = 12.40
+                            mode = 10
                             count = count + 1
 
                     elif key=="purple":
                             cv2.putText(frame, "Game mode: Venus", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
-                            mode = 4.4
+                            mode = 7
                             count = count + 1
                     else:
                         mode = 0
