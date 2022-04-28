@@ -707,7 +707,6 @@ while True:
 
         if arrowNum == 2:
             player2.update()
-            player1.switch()
 
         player2.draw(screen)
         
