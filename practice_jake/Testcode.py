@@ -30,15 +30,18 @@ colors = {'orange':(0,140,255), 'green':(0,255,0), 'blue':(255,0,0), 'purple':(2
 modes = {'Mars':1, 'Earth':2, 'Jupytor':3, 'Venus':4}
 
 #what game mode are we in? default is Earth
+#Random past level value that makes the game go go go
+#default levelpast is unchanged
+levelpast = 'unchanged'
 level = 'unchanged'
 
-def cameraOn():
+def cameraOn(level,levelpast):
+    print("CAMERA ON ACTICATED: " +level +levelpast)
     if not args.get("video", False):
         camera = cv2.VideoCapture(0)
 
     else:
         camera = cv2.VideoCapture(args["video"])
-
     mode = 0
     print('Game launching')
     # time.sleep(1)
@@ -87,10 +90,6 @@ def cameraOn():
 
                 if radius > 250:
                     detected=True
-                    if levelpast == level:
-                        levelpast = "unchanged"
-                    else:
-                        levelpast = level
                     if key == "orange":
                             cv2.putText(frame, "Game mode: Mars", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                             mode = 1.86
@@ -127,12 +126,18 @@ def cameraOn():
 
     camera.release()
     cv2.destroyAllWindows()
+    if levelpast == level:
+        #print("delete this")
+        levelpast = "unchanged"
+    else:
+        #print("delelel")
+        levelpast = level
 
     # game mode 1: Mars (Orange)
     # game mode 2: Earth (Blue)
     # game mode 3: Jupytor (green)
     # game mode 4: Venus (purple)
-    return mode
+    return mode, level, levelpast
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
@@ -344,36 +349,39 @@ def arrow(num):
 
 def getRandom():
     if level == "Earth":
-        list1 = [1 1 2 2 3 4]
+        list1 = [1 , 1 , 2 , 2 , 3,  4]
     if level == "Mars":
-        list1 = [1 2 3 4]
+        list1 = [1, 2, 3, 4]
     if level == "Jupiter":
-        list1 = [1 2 3 4]
+        list1 = [1, 2, 3, 4]
     if level == "Venus":
-        list1 = [1 2 3 4]
+        list1 = [1, 2, 3, 4]
     rnd = random.choice(list1)
     return rnd
 
 
-def getsky():
+def getsky(level, levelpast, sky_surface, bg_music):
     rnd = getRandom()
+    print("RANDOM SHIIIII" + str(rnd))
+    if levelpast == level:
+        levelpast = 'unchanged'
     if level == "Earth":
         sky_surface = pygame.image.load('graphics/Levels/Earth/Earth' + str(rnd) + '.png').convert()
-        bg_music = pygame.mixer.Sound('audio/Levels/Earth/Earth' + str(rnd) + 'mp3')
+        bg_music = pygame.mixer.Sound('audio/Levels/Earth/Earth' + str(rnd) + '.mp3')
         bg_music.play(loops = -1)
     if level == "Mars":
         sky_surface = pygame.image.load('graphics/Levels/Mars/Mars' + str(rnd) + '.png').convert()
-        bg_music = pygame.mixer.Sound('audio/Levels/Mars/Mars' + str(rnd) + 'mp3')
+        bg_music = pygame.mixer.Sound('audio/Levels/Mars/Mars' + str(rnd) + '.mp3')
         bg_music.play(loops = -1)
     if level == "Jupiter":
         sky_surface = pygame.image.load('graphics/Levels/Jupiter/Jupiter' + str(rnd) + '.png').convert()
-        bg_music = pygame.mixer.Sound('audio/Levels/Jupiter/Jupiter' + str(rnd) + 'mp3')
+        bg_music = pygame.mixer.Sound('audio/Levels/Jupiter/Jupiter' + str(rnd) + '.mp3')
         bg_music.play(loops = -1)
     if level == "Venus":
         sky_surface = pygame.image.load('graphics/Levels/Venus/Venus' + str(rnd) + '.png').convert()
-        bg_music = pygame.mixer.Sound('audio/Levels/Venus/Venus' + str(rnd) + 'mp3')
+        bg_music = pygame.mixer.Sound('audio/Levels/Venus/Venus' + str(rnd) + '.mp3')
         bg_music.play(loops = -1)
-
+    return level, levelpast, sky_surface
 
 
 class Rim(pygame.sprite.Sprite):
@@ -415,7 +423,7 @@ class Rim(pygame.sprite.Sprite):
 class World:
     def __init__(self):
         self.rim = []
-        self.collision_sound = pygame.mixer.Sound('audio/pingpong1.mp3')
+        self.collision_sound = pygame.mixer.Sound('audio/pingpongsounds/pingpong1.mp3')
         self.collision_sound.set_volume(1)
 
     def add_ball(self):
@@ -484,7 +492,7 @@ start_time = 0
 
 
 playerNum = 0
-bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
+bg_music = pygame.mixer.Sound('audio/Levels/Earth/Earth1.mp3')
 bg_music.play(loops = -1)
 
 #Groups
@@ -540,9 +548,6 @@ single_mode_active = False
 multiplayer_mode_active = False
 gravity_value = 4.9
 
-#Random past level value that makes the game go go go
-#default levelpast is unchanged
-levelpast = 'unchanged'
 
 # infinite loop for pygame, only terminates with exiting application
 while True:
@@ -564,7 +569,11 @@ while True:
                 world.ball.set_vel([vel_x,vel_y])
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_c:
-                gravity_value = cameraOn()
+                camera_output = cameraOn(level, levelpast)
+                gravity_value = camera_output[0]
+                level = camera_output[1]
+                levelpast = camera_output[2]
+
 
         # on home page, press space to enter game page
         else:
@@ -620,7 +629,19 @@ while True:
     # update game page
     if single_mode_active:
         # game page background
-        screen.blit(sky_surface,(0,0))
+        print("level: " + level)
+        print('\n')
+        print("levelpast: " + levelpast)
+        if levelpast == "unchanged":
+            screen.blit(sky_surface,(0,0))
+        else:
+            #pause background music and get new sky and level data
+            bg_music.stop()
+            level_levels = getsky(level,levelpast, sky_surface, bg_music)
+            level = level_levels[0]
+            levelpast = level_levels[1]
+            sky_surface = level_levels[2]
+            screen.blit(sky_surface,(0,0))
         screen.blit(ground_surface,(0,600))
 
         # game page sprites
@@ -671,11 +692,15 @@ while True:
     elif multiplayer_mode_active:
         # game page background
 
-        if level == "unchanged":
+        if levelpast == "unchanged":
             screen.blit(sky_surface,(0,0))
-        elif levelpast == level
-            screen.blit(sky_surface,(0,0))
-        else getsky():
+        else:
+            #pause background music and get new sky and level data
+            bg_music.stop()
+            level_levels = getsky(level,levelpast, sky_surface, bg_music)
+            level = level_levels[0]
+            levelpast = level_levels[1]
+            sky_surface = level_levels[2]
             screen.blit(sky_surface,(0,0))
         screen.blit(ground_surface,(0,600))
 
