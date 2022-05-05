@@ -218,15 +218,17 @@ class Player(pygame.sprite.Sprite):
         # if keys[pygame.K_RETURN] and self.current_sprite == 0:
         global msg_receieved
         
-        if msg_receieved and is_throw and self.current_sprite == 0:
+        if msg_receieved and self.current_sprite == 0:
             self.is_animating = True
             msg_receieved = 0
             
 
-    def update(self):
-        self.animate()
-        #self.switch()
-        # print(self.is_switching)
+    def update(self, switch_flag):
+        if is_throw:
+            self.animate()
+        elif not is_throw and switch_flag:
+            self.is_switching = True
+
         if self.is_switching == True:
             if self.rect.x > 90:
                 self.rect.x = 50
@@ -241,8 +243,6 @@ class Player(pygame.sprite.Sprite):
             if self.current_sprite >= len(self.sprites):
                 self.current_sprite = 0
                 self.is_animating = False
-                if multiplayer_mode_active:
-                    self.is_switching= True
             self.image = self.sprites[int(self.current_sprite)]
             self.image = pygame.transform.scale(self.image, (78, 186))
             
@@ -651,7 +651,7 @@ while True:
         
         # game page sprites
         player.draw(screen)
-        player.update()
+        player.update(False)
         
         arrow = arrow(1)
         
@@ -702,11 +702,12 @@ while True:
         # game page sprites
         player.draw(screen)
         if arrowNum == 1:
-            player.update()
+            player.update(False)
             
 
         if arrowNum == 2:
-            player2.update()
+            player2.update(False)
+                
 
         player2.draw(screen)
         
@@ -762,7 +763,9 @@ while True:
                     
                 
                 is_throw = False
-    
+                player2.update(True)
+                player.update(True)
+                
                 power.reset()
                 world.ball.set_pos([130, 470])
                 
