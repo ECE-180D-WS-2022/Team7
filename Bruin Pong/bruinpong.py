@@ -61,13 +61,11 @@ ap.add_argument("-v", "--video", help="path to the (optional) video file")
 ap.add_argument("-b", "--buffer", type=int, default=64, help="max buffer size")
 args = vars(ap.parse_args())
 
-
 # Setup Color Detection
 ap = argparse.ArgumentParser()
 ap.add_argument("-v", "--video", help="path to the (optional) video file")
 ap.add_argument("-b", "--buffer", type=int, default=64, help="max buffer size")
 args = vars(ap.parse_args())
- 
 
 # Ranges for the balls
 lower = {'orange':(5, 50, 50), 'green':(66, 122, 129), 'blue':(97, 100, 117), 'purple':(129, 50, 70)}
@@ -110,12 +108,9 @@ def cameraOn():
             mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
             mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
 
-
             cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
                 cv2.CHAIN_APPROX_SIMPLE)[-2]
             center = None
-            
-
 
             if len(cnts) > 0:
 
@@ -123,7 +118,6 @@ def cameraOn():
                 ((x, y), radius) = cv2.minEnclosingCircle(c)
                 M = cv2.moments(c)
                 center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
-
 
                 if radius > 0.5:
 
@@ -213,15 +207,11 @@ class Player(pygame.sprite.Sprite):
             self.rect = self.image.get_rect(midbottom = (100,630))
 
     def animate(self):
-        # keys = pygame.key.get_pressed() 
-        # if return key is pressed and on first image, animate the player
-        # if keys[pygame.K_RETURN] and self.current_sprite == 0:
         global msg_receieved
         
         if msg_receieved and self.current_sprite == 0:
             self.is_animating = True
             msg_receieved = 0
-            
 
     def update(self, switch_flag):
         if is_throw:
@@ -235,8 +225,7 @@ class Player(pygame.sprite.Sprite):
             elif self.rect.x < 80:
                 self.rect.x = 120
             self.is_switching = False
-            # global msg_receieved
-            # msg_receieved = 0
+
         # animation code
         if self.is_animating == True:
             self.current_sprite += 0.15
@@ -245,15 +234,6 @@ class Player(pygame.sprite.Sprite):
                 self.is_animating = False
             self.image = self.sprites[int(self.current_sprite)]
             self.image = pygame.transform.scale(self.image, (78, 186))
-            
-    def switch(self):
-        # keys = pygame.key.get_pressed()
-        # if return key is pressed and on first image, animate the player
-        # if keys[pygame.K_RETURN] and self.current_sprite == 0:
-        # global msg_receieved
-        # if msg_receieved and is_throw and self.current_sprite == 0:
-        self.is_switching = True
-
  
 # Cup Sprite Object
 class Cup(pygame.sprite.Sprite):
@@ -320,18 +300,12 @@ def collision_sprite():
     
     if collision:
         if world.ball.rect.top < (collision[0].rect.top):
-#            print(world.ball.rect.bottom)
-#            print(collision[0].rect.top)
             collision[0].kill()
             is_throw = False
             power.reset()
             if world.ball.state[0]>775 and world.ball.state[0]<825:
                 world.rim[0].set_pos([1300,300])
                 world.rim[1].set_pos([1300,300])
-#                for r in world.rim:
-#                    if r.state[0] != 1300:
-#                        world.siderim.set_pos([r.state[0]+5,560])
-#                        break
             elif world.ball.state[0]>834 and world.ball.state[0]<884:
                 world.rim[2].set_pos([1300,300])
                 world.rim[3].set_pos([1300,300])
@@ -492,10 +466,8 @@ player_font = pygame.font.Font('font/Pixeltype.ttf', 70)
 def font_size(num):
     return pygame.font.Font('font/Pixeltype.ttf', num)
 
-
 game_active = False
 start_time = 0
-
 
 playerNum = 0
 bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
@@ -504,7 +476,6 @@ bg_music.play(loops = -1)
 #Groups
 player = pygame.sprite.GroupSingle()
 player.add(Player(1))
-
 
 player2 = pygame.sprite.GroupSingle()
 player2.add(Player(2))
@@ -583,8 +554,6 @@ while True:
                 vel_y = -vel * sin(angle)
                 is_throw = True
                 world.ball.set_vel([vel_x,vel_y])
-                
-           
         
         # on home page, press space to enter game page
         else:
@@ -659,7 +628,6 @@ while True:
         world.draw(screen)
         cup_group.draw(screen)
         
-        
         score = display_score(score_num, 1)
         playerNum = display_player(1)
         throw = display_throw(throw_num, 1)
@@ -683,13 +651,11 @@ while True:
                 if len(cup_group) == 0:
                     single_mode_active = False
                
-            
             if world.update(power_value,gravity_value):
                 is_throw = False
                 throw_num += 1
                 power.reset()
                 world.ball.set_pos([130, 470])
-                
        
         # if not throwing, keep adjusting powerbar
         else:
@@ -707,16 +673,11 @@ while True:
 
         if arrowNum == 2:
             player2.update(False)
-                
 
         player2.draw(screen)
-        
-        
-        
         power.draw(screen)
         world.draw(screen)
         cup_group.draw(screen)
-        
         
         score = display_score(score_num, 1)
         score2 = display_score(score_num2, 2)
@@ -732,15 +693,7 @@ while True:
         # if throwing
         if is_throw:
             world.update(power_value,gravity_value)
-#            if world.ball.state[1]=520 and world.ball.state[0]-800<=20
-                
-#            for cup in cup_group:
-#                collide = world.ball.rect.colliderect(cup.rect)
-#                if collide:
-#                    cup.kill()
-#                    is_throw = False
-#                    power.reset()
-#                    world.ball.set_pos([130, 470])
+            
             # if the ball is deleted
             if collision_sprite():
                 if arrowNum == 1:
@@ -751,8 +704,6 @@ while True:
             if len(cup_group) == 0:
                 multiplayer_mode_active = False
 
-               
-            
             if world.update(power_value,gravity_value):
                 if arrowNum == 1:
                     throw_num += 1
@@ -760,7 +711,6 @@ while True:
                 else:
                     throw_num2 += 1
                     arrowNum = 1
-                    
                 
                 is_throw = False
                 player2.update(True)
@@ -769,7 +719,6 @@ while True:
                 power.reset()
                 world.ball.set_pos([130, 470])
                 
-       
         # if not throwing, keep adjusting powerbar
         else:
             power.move_bar()
@@ -790,7 +739,5 @@ while True:
         else: screen.blit(score_message,score_message_rect)
 
     # update the display and fps
-    
-        
     pygame.display.update()
     clock.tick(100)
