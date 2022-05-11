@@ -130,17 +130,14 @@ def cameraOn():
                             cv2.putText(frame, "Game mode: Mars", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                             mode = 2
                             count = count + 1
-
                     elif key=="blue":
                             cv2.putText(frame, "Game mode: Earth", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                             mode = 5
                             count = count + 1
-
                     elif key=="green":
                             cv2.putText(frame, "Game mode: Jupiter", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                             mode = 10
                             count = count + 1
-
                     elif key=="purple":
                             cv2.putText(frame, "Game mode: Venus", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                             mode = 7
@@ -159,10 +156,6 @@ def cameraOn():
     camera.release()
     cv2.destroyAllWindows()
         
-    # game mode 1: Mars (Orange)
-    # game mode 2: Earth (Blue)
-    # game mode 3: Jupytor (green)
-    # game mode 4: Venus (purple)
     return mode
 
 BLACK = (0, 0, 0)
@@ -283,10 +276,10 @@ class PowerBar:
         pygame.draw.rect(screen, BLACK, (450, 70, 300, 50), 1)
         pygame.draw.rect(screen, BLUE, (450, 70, self.power*3, 50), 0)
 
-    def move_bar(self):
+    def move_bar(self,value):
+        if self.power >= value:
+            return
         self.power += self.direction
-        if self.power <= 0 or self.power >= 100:
-            self.direction *= -1
     
     def ret_power(self):
         return self.power
@@ -322,9 +315,6 @@ def collision_sprite():
             return True
     else:
         return False
-
-def first_cup():
-    index = 0
 
 def display_score(score, num):
     #current_time = int(pygame.time.get_ticks()) - start_time
@@ -635,6 +625,7 @@ while True:
         # if throwing
         if is_throw:
             world.update(power_value,gravity_value)
+            power.move_bar((power_value * 25)/1.25+20)
 #            if world.ball.state[1]=520 and world.ball.state[0]-800<=20
                 
 #            for cup in cup_group:
@@ -657,9 +648,6 @@ while True:
                 power.reset()
                 world.ball.set_pos([130, 470])
        
-        # if not throwing, keep adjusting powerbar
-        else:
-            power.move_bar()
     elif multiplayer_mode_active:
         # game page background
         screen.blit(sky_surface,(0,0))
@@ -692,6 +680,7 @@ while True:
         
         # if throwing
         if is_throw:
+            power.move_bar((power_value * 25)/1.25+20)
             world.update(power_value,gravity_value)
             
             # if the ball is deleted
@@ -718,10 +707,6 @@ while True:
                 
                 power.reset()
                 world.ball.set_pos([130, 470])
-                
-        # if not throwing, keep adjusting powerbar
-        else:
-            power.move_bar()
      
     # on the restart page
     elif single_mode_active is False  and multiplayer_mode_active is False:
