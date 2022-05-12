@@ -354,6 +354,50 @@ def arrow(num):
     screen.blit(arrow_surf, arrow_rect)
     return arrow
 
+
+#what game mode are we in? default is Earth
+#Random past level value that makes the game go go go
+#default levelpast is unchanged
+levelpast = 'unchanged'
+level = 'unchanged'
+
+def getRandom():
+    if level == "Earth":
+        list1 = [1 , 1 , 2 , 2 , 3,  4]
+    if level == "Mars":
+        list1 = [1, 2, 3, 4]
+    if level == "Jupiter":
+        list1 = [1, 2, 3, 4]
+    if level == "Venus":
+        list1 = [1, 2, 3, 4]
+    rnd = random.choice(list1)
+    return rnd
+
+
+def getsky(level, levelpast, sky_surface, bg_music):
+    rnd = getRandom()
+    print("RANDOM SHIIIII" + str(rnd))
+    if levelpast == level:
+        levelpast = 'unchanged'
+    if level == "Earth":
+        sky_surface = pygame.image.load('graphics/Levels/Earth/Earth' + str(rnd) + '.png').convert()
+        bg_music = pygame.mixer.Sound('audio/Levels/Earth/Earth' + str(rnd) + '.mp3')
+        bg_music.play(loops = -1)
+    if level == "Mars":
+        sky_surface = pygame.image.load('graphics/Levels/Mars/Mars' + str(rnd) + '.png').convert()
+        bg_music = pygame.mixer.Sound('audio/Levels/Mars/Mars' + str(rnd) + '.mp3')
+        bg_music.play(loops = -1)
+    if level == "Jupiter":
+        sky_surface = pygame.image.load('graphics/Levels/Jupiter/Jupiter' + str(rnd) + '.png').convert()
+        bg_music = pygame.mixer.Sound('audio/Levels/Jupiter/Jupiter' + str(rnd) + '.mp3')
+        bg_music.play(loops = -1)
+    if level == "Venus":
+        sky_surface = pygame.image.load('graphics/Levels/Venus/Venus' + str(rnd) + '.png').convert()
+        bg_music = pygame.mixer.Sound('audio/Levels/Venus/Venus' + str(rnd) + '.mp3')
+        bg_music.play(loops = -1)
+    return level, levelpast, sky_surface
+
+
 class Rim(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -605,7 +649,17 @@ while True:
     # update game page
     if single_mode_active:
         # game page background
-        screen.blit(sky_surface,(0,0))
+        if levelpast == "unchanged":
+            screen.blit(sky_surface,(0,0))
+        else:
+            #pause background music and get new sky and level data
+            bg_music.stop()
+            level_levels = getsky(level,levelpast, sky_surface, bg_music)
+            level = level_levels[0]
+            levelpast = level_levels[1]
+            sky_surface = level_levels[2]
+
+            screen.blit(sky_surface,(0,0))
         screen.blit(ground_surface,(0,600))
         
         # game page sprites
@@ -649,8 +703,17 @@ while True:
                 world.ball.set_pos([130, 470])
        
     elif multiplayer_mode_active:
-        # game page background
-        screen.blit(sky_surface,(0,0))
+         if levelpast == "unchanged":
+            screen.blit(sky_surface,(0,0))
+        else:
+            #pause background music and get new sky and level data
+            bg_music.stop()
+            level_levels = getsky(level,levelpast, sky_surface, bg_music)
+            level = level_levels[0]
+            levelpast = level_levels[1]
+            sky_surface = level_levels[2]
+            # game page background
+            screen.blit(sky_surface,(0,0))
         screen.blit(ground_surface,(0,600))
         
         # game page sprites
