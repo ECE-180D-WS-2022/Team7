@@ -518,6 +518,7 @@ game_active = False
 start_time = 0
 
 playerNum = 0
+pygame.mixer.init()
 bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
 bg_music.play(loops = -1)
 
