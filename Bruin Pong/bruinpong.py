@@ -296,19 +296,19 @@ def collision_sprite():
             collision[0].kill()
             is_throw = False
             power.reset()
-            if world.ball.state[0]>775 and world.ball.state[0]<825:
+            if world.ball.state[0]>770 and world.ball.state[0]<830:
                 world.rim[0].set_pos([1300,300])
                 world.rim[1].set_pos([1300,300])
-            elif world.ball.state[0]>834 and world.ball.state[0]<884:
+            elif world.ball.state[0]>829 and world.ball.state[0]<889:
                 world.rim[2].set_pos([1300,300])
                 world.rim[3].set_pos([1300,300])
-            elif world.ball.state[0]>894 and world.ball.state[0]<944:
+            elif world.ball.state[0]>889 and world.ball.state[0]<949:
                 world.rim[4].set_pos([1300,300])
                 world.rim[5].set_pos([1300,300])
-            elif world.ball.state[0]>954 and world.ball.state[0]<1004:
+            elif world.ball.state[0]>949 and world.ball.state[0]<1009:
                 world.rim[6].set_pos([1300,300])
                 world.rim[7].set_pos([1300,300])
-            elif world.ball.state[0]>1014 and world.ball.state[0]<1064:
+            elif world.ball.state[0]>1009 and world.ball.state[0]<1069:
                 world.rim[8].set_pos([1300,300])
                 world.rim[9].set_pos([1300,300])
             world.ball.set_pos([130, 1000])
