@@ -6,6 +6,7 @@ from math import atan, radians, cos, sin
 import cv2
 import argparse
 import imutils
+import random
 
 ### MQTT 
 import paho.mqtt.client as mqtt
@@ -75,7 +76,7 @@ upper = {'orange':(15,255,255), 'green':(86,255,255), 'blue':(117,255,255), 'pur
 colors = {'orange':(0,140,255), 'green':(0,255,0), 'blue':(255,0,0), 'purple':(230,100,230)}
 modes = {'Mars':1, 'Earth':2, 'Jupytor':3, 'Venus':4}
 
-def cameraOn():
+def cameraOn(level,levelpast):
     if not args.get("video", False):
         camera = cv2.VideoCapture(0)
 
@@ -129,18 +130,22 @@ def cameraOn():
                     if key == "orange":
                             cv2.putText(frame, "Game mode: Mars", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                             mode = 2
+                            level = 'Mars'
                             count = count + 1
                     elif key=="blue":
                             cv2.putText(frame, "Game mode: Earth", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                             mode = 5
+                            level = 'Earth'
                             count = count + 1
                     elif key=="green":
                             cv2.putText(frame, "Game mode: Jupiter", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                             mode = 10
+                            level = 'Jupiter'
                             count = count + 1
                     elif key=="purple":
                             cv2.putText(frame, "Game mode: Venus", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                             mode = 7
+                            level = 'Venus'
                             count = count + 1
                     else:
                         mode = 0
@@ -155,8 +160,14 @@ def cameraOn():
 
     camera.release()
     cv2.destroyAllWindows()
+    if levelpast == level:
+        #print("delete this")
+        levelpast = "unchanged"
+    else:
+        #print("delelel")
+        levelpast = level
         
-    return mode
+    return mode, level, levelpast
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
@@ -381,10 +392,12 @@ def getsky(level, levelpast, sky_surface, bg_music):
         levelpast = 'unchanged'
     if level == "Earth":
         sky_surface = pygame.image.load('graphics/Levels/Earth/Earth' + str(rnd) + '.png').convert()
+        bg_music.stop()
         bg_music = pygame.mixer.Sound('audio/Levels/Earth/Earth' + str(rnd) + '.mp3')
         bg_music.play(loops = -1)
     if level == "Mars":
         sky_surface = pygame.image.load('graphics/Levels/Mars/Mars' + str(rnd) + '.png').convert()
+        bg_music.stop()
         bg_music = pygame.mixer.Sound('audio/Levels/Mars/Mars' + str(rnd) + '.mp3')
         bg_music.play(loops = -1)
     if level == "Jupiter":
@@ -393,6 +406,7 @@ def getsky(level, levelpast, sky_surface, bg_music):
         bg_music.play(loops = -1)
     if level == "Venus":
         sky_surface = pygame.image.load('graphics/Levels/Venus/Venus' + str(rnd) + '.png').convert()
+        bg_music.stop()
         bg_music = pygame.mixer.Sound('audio/Levels/Venus/Venus' + str(rnd) + '.mp3')
         bg_music.play(loops = -1)
     return level, levelpast, sky_surface
@@ -573,7 +587,7 @@ while True:
         # press return key to throw ball if on game page
         if single_mode_active or multiplayer_mode_active:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_c:
-                gravity_value = cameraOn()
+                gravity_value, level, levelpast = cameraOn(level, levelpast)
 
             if msg_receieved and not is_voice:
                 # msg_receieved = 0
@@ -654,10 +668,7 @@ while True:
         else:
             #pause background music and get new sky and level data
             bg_music.stop()
-            level_levels = getsky(level,levelpast, sky_surface, bg_music)
-            level = level_levels[0]
-            levelpast = level_levels[1]
-            sky_surface = level_levels[2]
+            level, levelpast, sky_surface = getsky(level,levelpast, sky_surface, bg_music)
 
             screen.blit(sky_surface,(0,0))
         screen.blit(ground_surface,(0,600))
@@ -703,15 +714,12 @@ while True:
                 world.ball.set_pos([130, 470])
        
     elif multiplayer_mode_active:
-         if levelpast == "unchanged":
+        if levelpast == "unchanged":
             screen.blit(sky_surface,(0,0))
         else:
             #pause background music and get new sky and level data
             bg_music.stop()
-            level_levels = getsky(level,levelpast, sky_surface, bg_music)
-            level = level_levels[0]
-            levelpast = level_levels[1]
-            sky_surface = level_levels[2]
+            level, levelpast, sky_surface = getsky(level,levelpast, sky_surface, bg_music)
             # game page background
             screen.blit(sky_surface,(0,0))
         screen.blit(ground_surface,(0,600))
