@@ -610,6 +610,19 @@ while True:
         
         # on home page, press space to enter game page
         else:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_r: 
+                rule_active = True
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_b:
+                score = 0
+                rule_active = False
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_0: 
+                score = 0
+                score2 = 0
+                score_num = 0
+                score_num2 = 0 
+                throw_num = 0
+                throw_num2 = 0
+
             if msg_receieved and is_voice:
                 rule_active = False
                 msg_receieved = 0
@@ -666,18 +679,7 @@ while True:
                     cup_group.add(Cup(920))
                     cup_group.add(Cup(980))
                     cup_group.add(Cup(1040))
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_r: 
-                    rule_active = True
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_b:
-                    score = 0
-                    rule_active = False
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_0: 
-                    score = 0
-                    score2 = 0
-                    score_num = 0
-                    score_num2 = 0 
-                    throw_num = 0
-                    throw_num2 = 0
+                
 
     # update game page
     if single_mode_active:
