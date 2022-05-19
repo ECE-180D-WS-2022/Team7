@@ -534,7 +534,7 @@ world = World()
 
 sky_surface = pygame.image.load('graphics/bruinpong.png').convert()
 ground_surface = pygame.image.load('graphics/table.jpeg').convert()
-rules = pygame.image.laod('graphics/rules.png').convert_alpha()
+rules = pygame.image.load('graphics/rules.png').convert_alpha()
 rules_stand = pygame.transform.rotozoom(rules, 0, 2)
 rules_stand_rect = rules_stand.get_rect(center = (600, 500))
 
