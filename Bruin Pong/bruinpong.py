@@ -534,6 +534,9 @@ world = World()
 
 sky_surface = pygame.image.load('graphics/bruinpong.png').convert()
 ground_surface = pygame.image.load('graphics/table.jpeg').convert()
+rules = pygame.image.laod('graphics/rules.png').convert_alpha()
+rules_stand = pygame.transform.rotozoom(rules, 0, 2)
+rules_stand_rect = rules_stand.get_rect(center = (600, 500))
 
 # Intro screen
 player_stand = pygame.image.load('graphics/main_copy.png').convert_alpha()
@@ -573,6 +576,7 @@ arrowNum = 1
 #single and multiplayer modes
 single_mode_active = False
 multiplayer_mode_active = False
+rule_active = False
 gravity_value = 4.9
 
 prev_power_value = 0
@@ -607,6 +611,7 @@ while True:
         # on home page, press space to enter game page
         else:
             if msg_receieved and is_voice:
+                rule_active = False
                 msg_receieved = 0
                 voice_command_list = ['start', 'rules', 'single', 'multi']
                 voice_command = int(receieved_msg)
@@ -639,6 +644,7 @@ while True:
                 elif voice_command_list[voice_command ] == 'multi':
                     msg_receieved = 0
                     multiplayer_mode_active = True
+                    rule_active = False
                     start_time = int(pygame.time.get_ticks())
                     power = PowerBar()
                     
@@ -660,6 +666,11 @@ while True:
                     cup_group.add(Cup(920))
                     cup_group.add(Cup(980))
                     cup_group.add(Cup(1040))
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_r: 
+                    rule_active = True
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_b:
+                    score = 0
+                    rule_active = False
 
     # update game page
     if single_mode_active:
@@ -779,21 +790,45 @@ while True:
                 
                 power.reset()
                 world.ball.set_pos([130, 470])
+    elif rule_active is True: 
+        screen.blit(rules, (90, 100))
+        
      
     # on the restart page
     elif single_mode_active is False  and multiplayer_mode_active is False:
+     
         screen.fill((94,129,162))
         screen.blit(player_stand,player_stand_rect)
+        
+        if score != 0 and score2 == 0:
       
-        score_message = test_font.render(f'Your score: {score_num} / {throw_num}',False,BLACK)
-        score_message_rect = score_message.get_rect(center = (400,330))
-        screen.blit(game_name,game_name_rect)
-
-        if score == 0: 
+            score_message = test_font.render(f'Your score: {score_num} / {throw_num}',False,BLACK)
+            score_message_rect = score_message.get_rect(center = (400,330))
+            screen.blit(game_name,game_name_rect)
+            final_message = test_font.render(f'Press 0 to go back to main menu',False,BLACK)
+            final_message_rect = score_message.get_rect(center = (400,400))
+            
+            
+            screen.blit(score_message, score_message_rect)
+            screen.blit(final_message,final_message_rect)
+            
+        elif score != 0 and score2 != 0: 
+            score_message1 = test_font.render(f'Player 1 score: {score_num} / {throw_num}',False,BLACK)
+            score_message_rect1 = score_message1.get_rect(center = (400,330))
+            score_message2 = test_font.render(f'Player 2 score: {score_num2} / {throw_num2}',False,BLACK)
+            score_message_rect2 = score_message2.get_rect(center = (400,360))
+            
+            screen.blit(score_message1,score_message_rect1)
+            screen.blit(score_message2,score_message_rect2)
+            final_message = test_font.render(f'Press 0 to go back to main menu',False,BLACK)
+            final_message_rect = score_message1.get_rect(center = (400,400))
+            screen.blit(final_message,final_message_rect)
+            
+        elif score == 0: 
+            screen.blit(game_name,game_name_rect)
             screen.blit(game_message,game_message_rect)
             screen.blit(game_message2,game_message_rect2)
             screen.blit(game_message3,game_message_rect3)
-        else: screen.blit(score_message,score_message_rect)
 
     # update the display and fps
     pygame.display.update()
