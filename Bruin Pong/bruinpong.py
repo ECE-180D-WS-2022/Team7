@@ -671,6 +671,13 @@ while True:
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_b:
                     score = 0
                     rule_active = False
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_0: 
+                    score = 0
+                    score2 = 0
+                    score_num = 0
+                    score_num2 = 0 
+                    throw_num = 0
+                    throw_num2 = 0
 
     # update game page
     if single_mode_active:
