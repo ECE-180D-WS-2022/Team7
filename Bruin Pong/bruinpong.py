@@ -535,8 +535,8 @@ world = World()
 sky_surface = pygame.image.load('graphics/bruinpong.png').convert()
 ground_surface = pygame.image.load('graphics/table.jpeg').convert()
 rules = pygame.image.load('graphics/rules.png').convert_alpha()
-rules_stand = pygame.transform.rotozoom(rules, 0, 2)
-rules_stand_rect = rules_stand.get_rect(center = (600, 500))
+rules_stand = pygame.transform.rotozoom(rules, 0, 1.5)
+rules_stand_rect = rules_stand.get_rect(center = (100, 150))
 
 # Intro screen
 player_stand = pygame.image.load('graphics/main_copy.png').convert_alpha()
@@ -800,7 +800,7 @@ while True:
                 power.reset()
                 world.ball.set_pos([130, 470])
     elif rule_active is True: 
-        screen.blit(rules, (90, 100))
+        screen.blit(rules_stand, (80, 100))
         
      
     # on the restart page
