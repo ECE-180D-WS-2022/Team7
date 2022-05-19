@@ -244,18 +244,12 @@ def collision_sprite():
     
     if collision:
         if world.ball.rect.top < (collision[0].rect.top):
-#            print(world.ball.rect.bottom)
-#            print(collision[0].rect.top)
             collision[0].kill()
             is_throw = False
             power.reset()
             if world.ball.state[0]>770 and world.ball.state[0]<830:
                 world.rim[0].set_pos([1300,300])
                 world.rim[1].set_pos([1300,300])
-#                for r in world.rim:
-#                    if r.state[0] != 1300:
-#                        world.siderim.set_pos([r.state[0]+5,560])
-#                        break
             elif world.ball.state[0]>829 and world.ball.state[0]<889:
                 world.rim[2].set_pos([1300,300])
                 world.rim[3].set_pos([1300,300])
@@ -268,6 +262,11 @@ def collision_sprite():
             elif world.ball.state[0]>1009 and world.ball.state[0]<1069:
                 world.rim[8].set_pos([1300,300])
                 world.rim[9].set_pos([1300,300])
+            for x in range(10):
+                if world.rim[x].state[0] != 1300:
+                    offset = 780+60*int(x/2)
+                    world.siderim.set_pos([offset,560])
+                    break
             world.ball.set_pos([130, 1000])
             return True
     else:
@@ -331,23 +330,23 @@ class Rim(pygame.sprite.Sprite):
         rect.center = (self.state[0], self.state[1])
         surface.blit(self.image, rect)
         
-#class SideRim(pygame.sprite.Sprite):
-#    def __init__(self):
-#        pygame.sprite.Sprite.__init__(self)
-#
-#        self.image = pygame.image.load('graphics/ball/disk-red.png')
-#        self.radius = 5
-#        self.image = pygame.transform.scale(self.image, (self.radius * 2, self.radius * 12))
-#        self.state = [0, 0]
-#
-#    def set_pos(self, pos):
-#        self.state[0:2] = pos
-#        return self
-#
-#    def draw(self, surface):
-#        rect = self.image.get_rect()
-#        rect.center = (self.state[0], self.state[1])
-#        surface.blit(self.image, rect)
+class SideRim(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = pygame.image.load('graphics/ball/disk-red.png')
+        self.radius = 5
+        self.image = pygame.transform.scale(self.image, (self.radius * 2, self.radius * 12))
+        self.state = [0, 0]
+
+    def set_pos(self, pos):
+        self.state[0:2] = pos
+        return self
+
+    def draw(self, surface):
+        rect = self.image.get_rect()
+        rect.center = (self.state[0], self.state[1])
+        surface.blit(self.image, rect)
 
 class World:
     def __init__(self):
@@ -365,16 +364,16 @@ class World:
         self.rim.append(rim)
         return rim
 
-#    def add_siderim(self):
-#        siderim = SideRim()
-#        self.siderim = siderim
-#        return siderim
+    def add_siderim(self):
+        siderim = SideRim()
+        self.siderim = siderim
+        return siderim
         
     def draw(self, screen):
         self.ball.draw(screen)
         for rim in self.rim:
             rim.draw(screen)
-#        self.siderim.draw(screen)
+        self.siderim.draw(screen)
             
     def update(self, power, gravity_value):
         reset = False
@@ -387,9 +386,9 @@ class World:
 
     def check_rim_collision(self):
         pos_i = self.ball.state[0:2]
-#        if (np.abs(self.ball.state[0]-780) < 5) and (np.abs(self.ball.state[1]-560) < 30) and (self.ball.state[2] > 0):
-#            self.ball.state[2] *= -1
-#            self.collision_sound.play()
+        if (np.abs(self.ball.state[0]-self.siderim.state[0]) < 5) and (np.abs(self.ball.state[1]-self.siderim.state[1]) < 30) and (self.ball.state[2] > 0):
+            self.ball.state[2] *= -1
+            self.collision_sound.play()
         for j in range(0, len(self.rim)):
             pos_j = np.array(self.rim[j].state[0:2])
             dist_ij = np.sqrt(np.sum((pos_i - pos_j) ** 2))
@@ -520,7 +519,7 @@ while True:
                 world.add_rim().set_pos([1004, 525])
                 world.add_rim().set_pos([1014, 525])
                 world.add_rim().set_pos([1064, 525])
-#                world.add_siderim().set_pos([780, 560])
+                world.add_siderim().set_pos([780, 560])
 
                 cup_group.add(Cup(800))
                 cup_group.add(Cup(860))
@@ -543,7 +542,7 @@ while True:
                 world.add_rim().set_pos([1004, 525])
                 world.add_rim().set_pos([1014, 525])
                 world.add_rim().set_pos([1064, 525])
-#                world.add_siderim().set_pos([780, 560])
+                world.add_siderim().set_pos([780, 560])
 
                 cup_group.add(Cup(800))
                 cup_group.add(Cup(860))
