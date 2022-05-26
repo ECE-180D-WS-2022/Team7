@@ -564,10 +564,10 @@ player_stand_rect = player_stand.get_rect(center = (600,500))
 game_name = font_size(150).render('Bruin Pong',False, BLACK)
 game_name_rect = game_name.get_rect(center = (600,200))
 
-game_message = test_font.render('Press "SPACE" or say "Single" for Single Player',False,BLACK)
+game_message = test_font.render('Say "Single" for Single Player',False,BLACK)
 game_message_rect = game_message.get_rect(center = (500,330))
 
-game_message2 = test_font.render('Press "M" or say "Multi" for Multiplayer',False,BLACK)
+game_message2 = test_font.render('Say "Multi" for Multiplayer',False,BLACK)
 game_message_rect2 = game_message.get_rect(center = (500,400))
 
 game_message3 = test_font.render('Press "R" for Rules',False,BLACK)
