@@ -914,7 +914,7 @@ while True:
         
         if score != 0 and score2 == 0:
       
-            score_message = test_font.render(f'Your score: {score_num} / {throw_num}',False,BLACK)
+            score_message = test_font.render(f'Your score:  # of cups made: {score_num}, # of throws: {throw_num}',False,BLACK)
             score_message_rect = score_message.get_rect(center = (400,330))
             screen.blit(game_name,game_name_rect)
             final_message = test_font.render(f'Press 0 to go back to main menu',False,BLACK)
@@ -925,9 +925,9 @@ while True:
             screen.blit(final_message,final_message_rect)
             
         elif score != 0 and score2 != 0: 
-            score_message1 = test_font.render(f'Player 1 score: {score_num} / {throw_num}',False,BLACK)
+            score_message1 = test_font.render(f'Player 1 score:  # of cups made: {score_num}, # of throws: {throw_num}',False,BLACK)
             score_message_rect1 = score_message1.get_rect(center = (400,330))
-            score_message2 = test_font.render(f'Player 2 score: {score_num2} / {throw_num2}',False,BLACK)
+            score_message2 = test_font.render(f'Player 2 score:  # of cups made: {score_num2}, # of throws: {throw_num2}',False,BLACK)
             score_message_rect2 = score_message2.get_rect(center = (400,360))
             
             screen.blit(score_message1,score_message_rect1)
