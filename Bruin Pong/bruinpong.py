@@ -132,21 +132,25 @@ def cameraOn(level,levelpast):
                             mode = 2
                             level = 'Mars'
                             count = count + 1
+                            color = (255, 165, 0)
                     elif key=="blue":
                             cv2.putText(frame, "Game mode: Earth", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                             mode = 5
                             level = 'Earth'
                             count = count + 1
+                            color = (0, 255, 255)
                     elif key=="green":
                             cv2.putText(frame, "Game mode: Jupiter", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                             mode = 10
                             level = 'Jupiter'
                             count = count + 1
+                            color = (0, 255, 0)
                     elif key=="purple":
                             cv2.putText(frame, "Game mode: Venus", (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                             mode = 7
                             level = 'Venus'
                             count = count + 1
+                            color = (230,230,250)
                     else:
                         mode = 0
 
@@ -167,7 +171,7 @@ def cameraOn(level,levelpast):
         #print("delelel")
         levelpast = level
         
-    return mode, level, levelpast
+    return mode, level, levelpast, color
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
@@ -596,6 +600,7 @@ rule_active = False
 rule_pageNum = 1
 
 gravity_value = 4.9
+color = (0, 255, 255)
 
 prev_power_value = 0
 
@@ -657,15 +662,24 @@ while True:
         # press return key to throw ball if on game page
         
         if single_mode_active or multiplayer_mode_active:
+            # display
+            gravity_surf = font_size(70).render(f'Planet Mode: {level}',False,color)
+            gravity_rect = gravity_surf.get_rect(center = (800,150))
+            relative_gravity = round(gravity_value/5,1)
+            gravity_surf1 = font_size(70).render(f'Gravity Value: {relative_gravity}x Earth',False,color)
+            gravity_rect1 = gravity_surf1.get_rect(center = (800,190))
+            screen.blit(gravity_surf,gravity_rect)
+            screen.blit(gravity_surf1,gravity_rect1)
+
             if event.type == pygame.KEYDOWN and event.key == pygame.K_c: 
-                gravity_value, level, levelpast = cameraOn(level, levelpast)
+                gravity_value, level, levelpast, color = cameraOn(level, levelpast)
 
             elif msg_receieved and is_voice:
                 msg_receieved = 0
                 voice_command_list = ['start', 'rules', 'single', 'multi', 'planet']
                 voice_command = int(receieved_msg)
                 if voice_command_list[voice_command ] == 'planet':
-                    gravity_value, level, levelpast = cameraOn(level, levelpast)
+                    gravity_value, level, levelpast, color = cameraOn(level, levelpast)
 
             if msg_receieved and not is_voice:
                 # msg_receieved = 0
