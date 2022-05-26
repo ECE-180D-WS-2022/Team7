@@ -288,8 +288,8 @@ class PowerBar:
         self.direction = 1
 
     def draw(self, screen):
-        pygame.draw.rect(screen, BLACK, (450, 70, 300, 50), 1)
-        pygame.draw.rect(screen, BLUE, (450, 70, self.power*3, 50), 0)
+        pygame.draw.rect(screen, BLACK, (750, 70, 300, 50), 1)
+        pygame.draw.rect(screen, BLUE, (750, 70, self.power*3, 50), 0)
 
     def move_bar(self,value):
         if self.power >= value:
@@ -600,8 +600,8 @@ rule_active = False
 rule_pageNum = 1
 
 gravity_value = 4.9
-color = (0, 255, 255)
-
+color = (0, 153, 76)
+text = 'Earth'
 prev_power_value = 0
 
 
@@ -663,13 +663,6 @@ while True:
         
         if single_mode_active or multiplayer_mode_active:
             # display
-            gravity_surf = font_size(70).render(f'Planet Mode: {level}',False,color)
-            gravity_rect = gravity_surf.get_rect(center = (800,150))
-            relative_gravity = round(gravity_value/5,1)
-            gravity_surf1 = font_size(70).render(f'Gravity Value: {relative_gravity}x Earth',False,color)
-            gravity_rect1 = gravity_surf1.get_rect(center = (800,190))
-            screen.blit(gravity_surf,gravity_rect)
-            screen.blit(gravity_surf1,gravity_rect1)
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_c: 
                 gravity_value, level, levelpast, color = cameraOn(level, levelpast)
@@ -820,6 +813,27 @@ while True:
         playerNum = display_player(1)
         throw = display_throw(throw_num, 1)
         
+        if gravity_value == 2:
+            text = 'Mars'
+            color = (255, 128, 0)
+        elif gravity_value == 5:
+            text = 'Earth'
+            color = (0, 153, 76)
+        elif gravity_value == 10:
+            text = 'Jupytor'
+            color = (0, 0, 255)
+        elif gravity_value == 7:
+            text = 'Venus'
+            color = (127, 0, 255)
+        
+        gravity_surf = font_size(70).render(f'Planet Mode: {text}',False,color)
+        gravity_rect = gravity_surf.get_rect(center = (900,150))
+        relative_gravity = round(gravity_value/5,1)
+        gravity_surf1 = font_size(70).render(f'Gravity Value: {relative_gravity}x Earth',False,color)
+        gravity_rect1 = gravity_surf1.get_rect(center = (900,190))
+        screen.blit(gravity_surf,gravity_rect)
+        screen.blit(gravity_surf1,gravity_rect1)
+            
         # if throwing
         if is_throw:
             world.update(power_value,gravity_value)
@@ -881,6 +895,27 @@ while True:
         
         throw = display_throw(throw_num, 1)
         throw2 = display_throw(throw_num2, 2)
+        
+        if gravity_value == 2:
+            text = 'Mars'
+            color = (255, 128, 0)
+        elif gravity_value == 5:
+            text = 'Earth'
+            color = (0, 153, 76)
+        elif gravity_value == 10:
+            text = 'Jupytor'
+            color = (0, 0, 255)
+        elif gravity_value == 7:
+            text = 'Venus'
+            color = (127, 0, 255)
+        
+        gravity_surf = font_size(70).render(f'Planet Mode: {text}',False,color)
+        gravity_rect = gravity_surf.get_rect(center = (900,150))
+        relative_gravity = round(gravity_value/5,1)
+        gravity_surf1 = font_size(70).render(f'Gravity Value: {relative_gravity}x Earth',False,color)
+        gravity_rect1 = gravity_surf1.get_rect(center = (900,190))
+        screen.blit(gravity_surf,gravity_rect)
+        screen.blit(gravity_surf1,gravity_rect1)
         
         # if throwing
         if is_throw:
