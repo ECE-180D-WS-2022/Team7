@@ -914,11 +914,11 @@ while True:
         
         if score != 0 and score2 == 0:
       
-            score_message = test_font.render(f'Your score:  # of cups made: {score_num}, # of throws: {throw_num}',False,BLACK)
-            score_message_rect = score_message.get_rect(center = (400,330))
+            score_message = test_font.render(f'Your score:     # of cups made: {score_num}     # of throws: {throw_num}',False,BLACK)
+            score_message_rect = score_message.get_rect(center = (450,330))
             screen.blit(game_name,game_name_rect)
             final_message = test_font.render(f'Press 0 to go back to main menu',False,BLACK)
-            final_message_rect = score_message.get_rect(center = (400,400))
+            final_message_rect = score_message.get_rect(center = (450,400))
             
             
             screen.blit(score_message, score_message_rect)
