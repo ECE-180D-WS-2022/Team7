@@ -534,6 +534,20 @@ world = World()
 
 sky_surface = pygame.image.load('graphics/bruinpong.png').convert()
 ground_surface = pygame.image.load('graphics/table.jpeg').convert()
+
+#RULES IMPLEMENTATION
+rule_1_stand = pygame.image.load('graphics/Rules/rule_1.png').convert_alpha()
+rule_1_stand = pygame.transform.rotozoom(rule_1_stand,0,2)
+rule_1_stand_rect = rule_1_stand.get_rect(center = (600,500))
+
+rule_2_stand = pygame.image.load('graphics/Rules/rule_2.png').convert_alpha()
+rule_2_stand = pygame.transform.rotozoom(rule_2_stand,0,2)
+rule_2_stand_rect = rule_2_stand.get_rect(center = (600,500))
+
+rule_3_stand = pygame.image.load('graphics/Rules/rule_3.png').convert_alpha()
+rule_3_stand = pygame.transform.rotozoom(rule_3_stand,0,2)
+rule_3_stand_rect = rule_3_stand.get_rect(center = (600,500))
+
 rules = pygame.image.load('graphics/rules.png').convert_alpha()
 rules_stand = pygame.transform.rotozoom(rules, 0, 1.5)
 rules_stand_rect = rules_stand.get_rect(center = (100, 150))
@@ -577,9 +591,60 @@ arrowNum = 1
 single_mode_active = False
 multiplayer_mode_active = False
 rule_active = False
+
+# ADD BELOW constant
+rule_pageNum = 1
+
 gravity_value = 4.9
 
 prev_power_value = 0
+
+
+def start_single():
+    # game page initiations
+    start_time = int(pygame.time.get_ticks())
+    power = PowerBar()
+    
+    world.add_ball().set_pos([130, 470])
+    world.add_rim().set_pos([775, 525])
+    world.add_rim().set_pos([825, 525])
+    world.add_rim().set_pos([834, 525])
+    world.add_rim().set_pos([884, 525])
+    world.add_rim().set_pos([894, 525])
+    world.add_rim().set_pos([944, 525])
+    world.add_rim().set_pos([954, 525])
+    world.add_rim().set_pos([1004, 525])
+    world.add_rim().set_pos([1014, 525])
+    world.add_rim().set_pos([1064, 525])
+#                world.add_siderim().set_pos([780, 560])
+
+    cup_group.add(Cup(800))
+    cup_group.add(Cup(860))
+    cup_group.add(Cup(920))
+    cup_group.add(Cup(980))
+    cup_group.add(Cup(1040))
+
+def start_multi():
+    start_time = int(pygame.time.get_ticks())
+    
+    world.add_ball().set_pos([130, 470])
+    world.add_rim().set_pos([775, 525])
+    world.add_rim().set_pos([825, 525])
+    world.add_rim().set_pos([834, 525])
+    world.add_rim().set_pos([884, 525])
+    world.add_rim().set_pos([894, 525])
+    world.add_rim().set_pos([944, 525])
+    world.add_rim().set_pos([954, 525])
+    world.add_rim().set_pos([1004, 525])
+    world.add_rim().set_pos([1014, 525])
+    world.add_rim().set_pos([1064, 525])
+#                world.add_siderim().set_pos([780, 560])
+
+    cup_group.add(Cup(800))
+    cup_group.add(Cup(860))
+    cup_group.add(Cup(920))
+    cup_group.add(Cup(980))
+    cup_group.add(Cup(1040))
 
 # infinite loop for pygame, only terminates with exiting application
 while True:
@@ -590,9 +655,17 @@ while True:
             exit()
 
         # press return key to throw ball if on game page
+        
         if single_mode_active or multiplayer_mode_active:
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_c:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_c: 
                 gravity_value, level, levelpast = cameraOn(level, levelpast)
+
+            elif msg_receieved and is_voice:
+                msg_receieved = 0
+                voice_command_list = ['start', 'rules', 'single', 'multi', 'planet']
+                voice_command = int(receieved_msg)
+                if voice_command_list[voice_command ] == 'planet':
+                    gravity_value, level, levelpast = cameraOn(level, levelpast)
 
             if msg_receieved and not is_voice:
                 # msg_receieved = 0
@@ -607,11 +680,25 @@ while True:
                 vel_y = -vel * sin(angle)
                 is_throw = True
                 world.ball.set_vel([vel_x,vel_y])
-        
+
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                power_value = power.ret_power()
+                angle = 0.9
+                vel = power_value/1.25+20
+                vel_x = vel * cos(angle)
+                vel_y = -vel * sin(angle)
+                is_throw = True
+                world.ball.set_vel([vel_x,vel_y])
+
         # on home page, press space to enter game page
         else:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r: 
                 rule_active = True
+                rule_pageNum = 1
+            if rule_active and event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT: 
+                rule_pageNum += 1
+            if rule_active and event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT: 
+                rule_pageNum -= 1
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_b:
                 score = 0
                 rule_active = False
@@ -622,16 +709,25 @@ while True:
                 score_num2 = 0 
                 throw_num = 0
                 throw_num2 = 0
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                single_mode_active = True
+                start_single()
+                power = PowerBar()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+                multiplayer_mode_active = True
+                start_multi()
+                power = PowerBar()
 
             if msg_receieved and is_voice:
                 rule_active = False
                 msg_receieved = 0
-                voice_command_list = ['start', 'rules', 'single', 'multi']
+                voice_command_list = ['start', 'rules', 'single', 'multi', 'planet']
                 voice_command = int(receieved_msg)
 
                 if voice_command_list[voice_command ] == 'single':
                     single_mode_active = True
-                    
+                    start_single()
+
                     # game page initiations
                     start_time = int(pygame.time.get_ticks())
                     power = PowerBar()
@@ -654,6 +750,7 @@ while True:
                     cup_group.add(Cup(920))
                     cup_group.add(Cup(980))
                     cup_group.add(Cup(1040))
+
                 elif voice_command_list[voice_command ] == 'multi':
                     msg_receieved = 0
                     multiplayer_mode_active = True
@@ -679,6 +776,7 @@ while True:
                     cup_group.add(Cup(920))
                     cup_group.add(Cup(980))
                     cup_group.add(Cup(1040))
+                    
                 
 
     # update game page
@@ -800,7 +898,12 @@ while True:
                 power.reset()
                 world.ball.set_pos([130, 470])
     elif rule_active is True: 
-        screen.blit(rules_stand, (80, 100))
+        if rule_pageNum == 1: 
+            screen.blit(rule_1_stand,rule_1_stand_rect)
+        if rule_pageNum == 2: 
+            screen.blit(rule_2_stand,rule_2_stand_rect)
+        if rule_pageNum == 3: 
+            screen.blit(rule_3_stand,rule_3_stand_rect)
         
      
     # on the restart page
