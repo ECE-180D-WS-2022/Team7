@@ -224,8 +224,8 @@ class PowerBar:
         self.direction = 1
 
     def draw(self, screen):
-        pygame.draw.rect(screen, BLACK, (450, 70, 300, 50), 1)
-        pygame.draw.rect(screen, BLUE, (450, 70, self.power*3, 50), 0)
+        pygame.draw.rect(screen, BLACK, (850, 70, 300, 50), 1)
+        pygame.draw.rect(screen, BLUE, (850, 70, self.power*3, 50), 0)
 
     def move_bar(self):
         self.power += self.direction
@@ -585,9 +585,12 @@ while True:
                 
         gravity_surf = font_size(70).render(f'Planet Mode: {text}',False,color)
         gravity_rect = gravity_surf.get_rect(center = (800,150))
-          
+        relative_gravity = round(gravity_value/5,1)
+        gravity_surf1 = font_size(70).render(f'Gravity Value: {relative_gravity}x Earth',False,color)
+        gravity_rect1 = gravity_surf1.get_rect(center = (800,190))
         screen.blit(gravity_surf,gravity_rect)
-            
+        screen.blit(gravity_surf1,gravity_rect1)
+
         # if throwing
         if is_throw:
             world.update(power_value,gravity_value)
@@ -658,7 +661,11 @@ while True:
                 
         gravity_surf = font_size(70).render(f'Planet Mode: {text}',False,color)
         gravity_rect = gravity_surf.get_rect(center = (800,150))
+        relative_gravity = round(gravity_value/5,1)
+        gravity_surf1 = font_size(70).render(f'Gravity Value: {relative_gravity}x Earth',False,color)
+        gravity_rect1 = gravity_surf1.get_rect(center = (800,190))
         screen.blit(gravity_surf,gravity_rect)
+        screen.blit(gravity_surf1,gravity_rect1)
         
         # if throwing
         if is_throw:
@@ -700,7 +707,7 @@ while True:
             power.move_bar()
      
     # on the restart page
-    elif single_mode_active is False  and multiplayer_mode_active is False:
+    elif single_mode_active is False and multiplayer_mode_active is False:
         screen.fill((94,129,162))
         screen.blit(player_stand,player_stand_rect)
       
