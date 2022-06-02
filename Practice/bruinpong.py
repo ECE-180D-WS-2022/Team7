@@ -814,6 +814,10 @@ while True:
     # on the restart page
     elif single_mode_active is False and multiplayer_mode_active is False:
      
+        cup_group.empty()
+        for i in world.rim:
+            world.rim.remove(i)
+     
         screen.fill((94,129,162))
         screen.blit(player_stand,player_stand_rect)
         
