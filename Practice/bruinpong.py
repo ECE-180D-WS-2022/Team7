@@ -567,15 +567,6 @@ while True:
                 vel_y = -vel * sin(angle)
                 is_throw = True
                 world.ball.set_vel([vel_x,vel_y])
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_b: 
-                score = 0
-                score2 = 0
-                score_num = 0
-                score_num2 = 0 
-                throw_num = 0
-                throw_num2 = 0
-                single_mode_active = 0
-                multiplayer_mode_active = 0
 
         # on home page, press space to enter game page
         else:
