@@ -573,9 +573,9 @@ while True:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r: 
                 rule_active = True
                 rule_pageNum = 1
-            if rule_active and event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT: 
+            if rule_active and rule_pageNum<3 and event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
                 rule_pageNum += 1
-            if rule_active and event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT: 
+            if rule_active and rule_pageNum>1 and event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT: 
                 rule_pageNum -= 1
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_b:
                 score = 0
