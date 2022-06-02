@@ -763,9 +763,8 @@ while True:
                     score_num += 1
                 else:
                     score_num2 += 1
-                
-            if len(cup_group) == 0:
-                multiplayer_mode_active = False
+                if len(cup_group) == 0:
+                    multiplayer_mode_active = False
 
             if world.update(power_value,gravity_value):
                 if arrowNum == 1:
