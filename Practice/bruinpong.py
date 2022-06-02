@@ -752,6 +752,11 @@ while True:
         gravity_rect1 = gravity_surf1.get_rect(center = (900,190))
         screen.blit(gravity_surf,gravity_rect)
         screen.blit(gravity_surf1,gravity_rect1)
+
+        # instruction for changing planets
+        planet_switch = font_size(40).render(f'Press "C" to select a new planet',False,color)
+        planet_rect = planet_switch.get_rect(center = (1000, 230))
+        screen.blit(planet_switch,planet_rect)
         
         # if throwing
         if is_throw:
