@@ -684,7 +684,7 @@ while True:
 
         # instruction for changing planets
         planet_switch = font_size(40).render(f'Press "C" to select a new planet',False,color)
-        planet_rect = planet_switch.get_rect(center = (900, 220))
+        planet_rect = planet_switch.get_rect(center = (900, 230))
         screen.blit(planet_switch,planet_rect)
             
         # if throwing
@@ -760,7 +760,7 @@ while True:
 
         # instruction for changing planets
         planet_switch = font_size(40).render(f'Press "C" to select a new planet',False,color)
-        planet_rect = planet_switch.get_rect(center = (900, 220))
+        planet_rect = planet_switch.get_rect(center = (900, 230))
         screen.blit(planet_switch,planet_rect)
         
         # if throwing
