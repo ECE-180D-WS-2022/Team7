@@ -117,10 +117,8 @@ def cameraOn(level,levelpast):
     camera.release()
     cv2.destroyAllWindows()
     if levelpast == level:
-        #print("delete this")
         levelpast = "unchanged"
     else:
-        #print("delelel")
         levelpast = level
         
     return mode, level, levelpast, color
@@ -167,7 +165,9 @@ class Player(pygame.sprite.Sprite):
             self.rect = self.image.get_rect(midbottom = (100,630))
 
     def animate(self):
-        if self.current_sprite == 0:
+        keys = pygame.key.get_pressed()
+        # if return key is pressed and on first image, animate the player
+        if keys[pygame.K_RETURN] and self.current_sprite == 0:
             self.is_animating = True
 
     def update(self, switch_flag):
@@ -237,7 +237,7 @@ class PowerBar:
         pygame.draw.rect(screen, BLACK, (750, 70, 300, 50), 1)
         pygame.draw.rect(screen, BLUE, (750, 70, self.power*3, 50), 0)
 
-    def move_bar(self,value):
+    def move_bar(self):
         self.power += self.direction
         if self.power <= 0 or self.power >= 100:
             self.direction *= -1
@@ -257,19 +257,19 @@ def collision_sprite():
             collision[0].kill()
             is_throw = False
             power.reset()
-            if world.ball.state[0]>770 and world.ball.state[0]<830:
+            if world.ball.state[0]>=770 and world.ball.state[0]<=830:
                 world.rim[0].set_pos([1300,300])
                 world.rim[1].set_pos([1300,300])
-            elif world.ball.state[0]>830 and world.ball.state[0]<889:
+            elif world.ball.state[0]>=830 and world.ball.state[0]<=889:
                 world.rim[2].set_pos([1300,300])
                 world.rim[3].set_pos([1300,300])
-            elif world.ball.state[0]>889 and world.ball.state[0]<949:
+            elif world.ball.state[0]>=889 and world.ball.state[0]<=949:
                 world.rim[4].set_pos([1300,300])
                 world.rim[5].set_pos([1300,300])
-            elif world.ball.state[0]>949 and world.ball.state[0]<1009:
+            elif world.ball.state[0]>=949 and world.ball.state[0]<=1009:
                 world.rim[6].set_pos([1300,300])
                 world.rim[7].set_pos([1300,300])
-            elif world.ball.state[0]>1009 and world.ball.state[0]<1069:
+            elif world.ball.state[0]>=1009 and world.ball.state[0]<=1069:
                 world.rim[8].set_pos([1300,300])
                 world.rim[9].set_pos([1300,300])
             for x in range(10):
@@ -424,15 +424,6 @@ class World:
         for rim in self.rim:
             rim.draw(screen)
         self.siderim.draw(screen)
-            
-    def update(self, power, gravity_value):
-        reset = False
-        self.check_rim_collision()
-        self.ball.update(power,gravity_value)
-        # ball is out of bounds -> reset
-        if (self.ball.state[0] > 1250 or self.ball.state[1] > 600):
-            reset = True
-        return reset
 
     def check_rim_collision(self):
         pos_i = self.ball.state[0:2]
@@ -453,6 +444,15 @@ class World:
                     self.collision_sound.play()
         return
 
+    def update(self, power, gravity_value):
+        reset = False
+        self.check_rim_collision()
+        self.ball.update(power,gravity_value)
+        # ball is out of bounds -> reset
+        if (self.ball.state[0] > 1250 or self.ball.state[1] > 600):
+            reset = True
+        return reset
+        
 # start of main code
 pygame.init()
 screen = pygame.display.set_mode((1200,800))
@@ -508,13 +508,10 @@ player_stand_rect = player_stand.get_rect(center = (600,500))
 
 game_name = font_size(150).render('Bruin Pong',False, BLACK)
 game_name_rect = game_name.get_rect(center = (600,200))
-
-game_message = test_font.render('Say "Single" for Single Player',False,BLACK)
+game_message = test_font.render('Press "SPACE" for Single Player',False,BLACK)
 game_message_rect = game_message.get_rect(center = (500,330))
-
-game_message2 = test_font.render('Say "Multi" for Multiplayer',False,BLACK)
+game_message2 = test_font.render('Press "M" for Multiplayer',False,BLACK)
 game_message_rect2 = game_message.get_rect(center = (500,400))
-
 game_message3 = test_font.render('Press "R" for Rules',False,BLACK)
 game_message_rect3 = game_message.get_rect(center = (500,470))
 
@@ -543,7 +540,6 @@ rule_active = False
 
 # ADD BELOW constant
 rule_pageNum = 1
-
 gravity_value = 4.9
 color = (0, 153, 76)
 text = 'Earth'
@@ -718,12 +714,12 @@ while True:
         screen.blit(ground_surface,(0,600))
         
         # game page sprites
-        player.draw(screen)
         if arrowNum == 1:
             player.update(False)
         if arrowNum == 2:
             player2.update(False)
 
+        player.draw(screen)
         player2.draw(screen)
         power.draw(screen)
         world.draw(screen)
