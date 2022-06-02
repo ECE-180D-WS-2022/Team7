@@ -359,29 +359,35 @@ def getRandom():
     rnd = random.choice(list1)
     return rnd
 
+def getBallRandom():
+    list1 = [1, 2, 3, 4,5 ,6]
+    rnd = random.choice(list1)
+    return rnd
+
+
 
 def getsky(level, levelpast, sky_surface, bg_music):
     rnd = getRandom()
-    print("RANDOM SHIIIII" + str(rnd))
+    bg_music.stop()
     if levelpast == level:
         levelpast = 'unchanged'
     if level == "Earth":
+        bg_music.stop()
         sky_surface = pygame.image.load('graphics/Levels/Earth/Earth' + str(rnd) + '.png').convert()
         bg_music = pygame.mixer.Sound('audio/Levels/Earth/Earth' + str(rnd) + '.mp3')
-        bg_music.play(loops = -1)
     if level == "Mars":
+        bg_music.stop()
         sky_surface = pygame.image.load('graphics/Levels/Mars/Mars' + str(rnd) + '.png').convert()
         bg_music = pygame.mixer.Sound('audio/Levels/Mars/Mars' + str(rnd) + '.mp3')
-        bg_music.play(loops = -1)
     if level == "Jupiter":
+        bg_music.stop()
         sky_surface = pygame.image.load('graphics/Levels/Jupiter/Jupiter' + str(rnd) + '.png').convert()
         bg_music = pygame.mixer.Sound('audio/Levels/Jupiter/Jupiter' + str(rnd) + '.mp3')
-        bg_music.play(loops = -1)
     if level == "Venus":
+        bg_music.stop()
         sky_surface = pygame.image.load('graphics/Levels/Venus/Venus' + str(rnd) + '.png').convert()
         bg_music = pygame.mixer.Sound('audio/Levels/Venus/Venus' + str(rnd) + '.mp3')
-        bg_music.play(loops = -1)
-    return level, levelpast, sky_surface
+    return level, levelpast, sky_surface, bg_music
 
 
 class Rim(pygame.sprite.Sprite):
@@ -472,6 +478,9 @@ class World:
                 new_ball_state = pos_i - pos_j
                 if (new_ball_state[1] >= new_ball_state[0]) and (new_ball_state[1] < -1*new_ball_state[0]):
                     self.ball.state[2] *= -1
+                    ballnum = getBallRandom()
+                    self.collision_sound = pygame.mixer.Sound('audio/pingpongsounds/pingpong' + str(ballnum) + '.mp3')
+                    self.collision_sound.set_volume(1)
                     self.collision_sound.play()
         return
 
@@ -641,7 +650,10 @@ while True:
             level = level_levels[0]
             levelpast = level_levels[1]
             sky_surface = level_levels[2]
+            bg_music=level_levels[3]
+            bg_music.play(loops = -1)
             screen.blit(sky_surface,(0,0))
+
         screen.blit(ground_surface,(0,600))
 
         # game page sprites
@@ -701,7 +713,10 @@ while True:
             level = level_levels[0]
             levelpast = level_levels[1]
             sky_surface = level_levels[2]
+            bg_music=level_levels[3]
+            bg_music.play(loops = -1)
             screen.blit(sky_surface,(0,0))
+
         screen.blit(ground_surface,(0,600))
 
         # game page sprites
