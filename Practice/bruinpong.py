@@ -260,7 +260,7 @@ def collision_sprite():
             if world.ball.state[0]>=770 and world.ball.state[0]<=830:
                 world.rim[0].set_pos([1300,300])
                 world.rim[1].set_pos([1300,300])
-            elif world.ball.state[0]>=830 and world.ball.state[0]<=889:
+            elif world.ball.state[0]>=829 and world.ball.state[0]<=889:
                 world.rim[2].set_pos([1300,300])
                 world.rim[3].set_pos([1300,300])
             elif world.ball.state[0]>=889 and world.ball.state[0]<=949:
@@ -472,12 +472,6 @@ bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
 bg_music.play(loops = -1)
 
 #Groups
-player = pygame.sprite.GroupSingle()
-player.add(Player(1))
-
-player2 = pygame.sprite.GroupSingle()
-player2.add(Player(2))
-
 cup_group = pygame.sprite.Group()
 world = World()
 
@@ -597,6 +591,11 @@ while True:
                 throw_num = 0
                 throw_num2 = 0
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                player = pygame.sprite.GroupSingle()
+                player.add(Player(1))
+                player2 = pygame.sprite.GroupSingle()
+                player2.add(Player(2))
+
                 single_mode_active = True
                 
                 # game page initiations
@@ -623,6 +622,11 @@ while True:
                 cup_group.add(Cup(1040))
                 
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+                player = pygame.sprite.GroupSingle()
+                player.add(Player(1))
+                player2 = pygame.sprite.GroupSingle()
+                player2.add(Player(2))
+            
                 multiplayer_mode_active = True
                 start_time = int(pygame.time.get_ticks())
                 power = PowerBar()
@@ -813,7 +817,7 @@ while True:
         
     # on the restart page
     elif single_mode_active is False and multiplayer_mode_active is False:
-     
+        
         cup_group.empty()
         for i in world.rim:
             world.rim.remove(i)
