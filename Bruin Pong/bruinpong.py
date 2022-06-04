@@ -399,7 +399,7 @@ def getBallRandom():
     rnd = random.choice(list1)
     return rnd
 
-def getsky(level, levelpast, sky_surface, bg_music):
+def getsky(level, levelpast, sky_surface, bg_music, levelNumber):
     rnd = getRandom()
     while(levelNumber == rnd):
         rnd = getRandom()
