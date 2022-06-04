@@ -419,7 +419,8 @@ def getsky(level, levelpast, sky_surface, bg_music):
     if level == "Jupiter":
         bg_music.stop()
         sky_surface = pygame.image.load('graphics/Levels/Jupiter/Jupiter' + str(rnd) + '.png').convert()
-        bg_music = pygame.mixer.Sound('audio/Levels/Jupiter/Jupiter' + str(rnd) + '.mp3')
+        #FIX THIS AFTER DEMO
+        bg_music = pygame.mixer.Sound('audio/Levels/Jupiter/Jupiter.mp3')
     if level == "Venus":
         bg_music.stop()
         sky_surface = pygame.image.load('graphics/Levels/Venus/Venus' + str(rnd) + '.png').convert()
