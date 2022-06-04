@@ -460,7 +460,7 @@ class SideRim(pygame.sprite.Sprite):
 class World:
     def __init__(self):
         self.rim = []
-        self.collision_sound = pygame.mixer.Sound('audio/pingpong1.mp3')
+        self.collision_sound = pygame.mixer.Sound('audio/pingpongsounds/pingpong1.mp3')
         self.collision_sound.set_volume(1)
 
     def add_ball(self):
@@ -844,7 +844,7 @@ while True:
         screen.blit(gravity_surf1,gravity_rect1)
         
         # instruction for changing planets
-        planet_switch = font_size(40).render(f'Press "C" to select a new planet',False,color)
+        planet_switch = font_size(40).render(f'Say "Planet" to select a new planet',False,color)
         planet_rect = planet_switch.get_rect(center = (900, 230))
         screen.blit(planet_switch,planet_rect)
         
@@ -922,7 +922,7 @@ while True:
         screen.blit(gravity_surf1,gravity_rect1)
         
         # instruction for changing planets
-        planet_switch = font_size(40).render(f'Press "C" to select a new planet',False,color)
+        planet_switch = font_size(40).render(f'Say "Planet" to select a new planet',False,color)
         planet_rect = planet_switch.get_rect(center = (900, 230))
         screen.blit(planet_switch,planet_rect)
         
