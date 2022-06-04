@@ -247,17 +247,14 @@ class Player(pygame.sprite.Sprite):
 class Cup(pygame.sprite.Sprite):
     def __init__(self,x_pos):
         super().__init__()
-        
         self.cup = pygame.image.load('graphics/cups/cup.png').convert_alpha()
         self.image = self.cup
-
         self.rect = self.image.get_rect(midbottom = (x_pos,600))
 
 # Ball Sprite Object
 class Ball(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        
         self.image = pygame.image.load('graphics/ball/ball.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (16, 16))
         # [x coord, y coord, x vel, y vel]
@@ -326,6 +323,11 @@ def collision_sprite():
             elif world.ball.state[0]>1009 and world.ball.state[0]<1069:
                 world.rim[8].set_pos([1300,300])
                 world.rim[9].set_pos([1300,300])
+            for x in range(10):
+                if world.rim[x].state[0] != 1300:
+                    offset = 780+60*int(x/2)
+                    world.siderim.set_pos([offset,560])
+                    break
             world.ball.set_pos([130, 1000])
             return True
     else:
@@ -349,7 +351,6 @@ def display_throw(throw, num):
         throw_rect = throw_surf.get_rect(center = (400,250))
     screen.blit(throw_surf,throw_rect)
     return True
-
 
 def display_player(num):
     player_surf = player_font.render(f'Player: {num}',False,(64,64,64))
@@ -388,6 +389,10 @@ def getRandom():
     rnd = random.choice(list1)
     return rnd
 
+def getBallRandom():
+    list1 = [1, 2, 3, 4,5 ,6]
+    rnd = random.choice(list1)
+    return rnd
 
 def getsky(level, levelpast, sky_surface, bg_music):
     rnd = getRandom()
@@ -434,23 +439,23 @@ class Rim(pygame.sprite.Sprite):
         rect.center = (self.state[0], self.state[1])
         surface.blit(self.image, rect)
         
-#class SideRim(pygame.sprite.Sprite):
-#    def __init__(self):
-#        pygame.sprite.Sprite.__init__(self)
-#
-#        self.image = pygame.image.load('graphics/ball/disk-red.png')
-#        self.radius = 5
-#        self.image = pygame.transform.scale(self.image, (self.radius * 2, self.radius * 12))
-#        self.state = [0, 0]
-#
-#    def set_pos(self, pos):
-#        self.state[0:2] = pos
-#        return self
-#
-#    def draw(self, surface):
-#        rect = self.image.get_rect()
-#        rect.center = (self.state[0], self.state[1])
-#        surface.blit(self.image, rect)
+class SideRim(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = pygame.image.load('graphics/ball/disk-red.png')
+        self.radius = 5
+        self.image = pygame.transform.scale(self.image, (self.radius * 2, self.radius * 12))
+        self.state = [0, 0]
+
+    def set_pos(self, pos):
+        self.state[0:2] = pos
+        return self
+
+    def draw(self, surface):
+        rect = self.image.get_rect()
+        rect.center = (self.state[0], self.state[1])
+        surface.blit(self.image, rect)
 
 class World:
     def __init__(self):
@@ -468,16 +473,16 @@ class World:
         self.rim.append(rim)
         return rim
 
-#    def add_siderim(self):
-#        siderim = SideRim()
-#        self.siderim = siderim
-#        return siderim
+    def add_siderim(self):
+        siderim = SideRim()
+        self.siderim = siderim
+        return siderim
         
     def draw(self, screen):
         self.ball.draw(screen)
         for rim in self.rim:
             rim.draw(screen)
-#        self.siderim.draw(screen)
+        self.siderim.draw(screen)
             
     def update(self, power, gravity_value):
         reset = False
@@ -490,9 +495,9 @@ class World:
 
     def check_rim_collision(self):
         pos_i = self.ball.state[0:2]
-#        if (np.abs(self.ball.state[0]-780) < 5) and (np.abs(self.ball.state[1]-560) < 30) and (self.ball.state[2] > 0):
-#            self.ball.state[2] *= -1
-#            self.collision_sound.play()
+        if (np.abs(self.ball.state[0]-self.siderim.state[0]) < 5) and (np.abs(self.ball.state[1]-self.siderim.state[1]) < 30) and (self.ball.state[2] > 0):
+            self.ball.state[2] *= -1
+            self.collision_sound.play()
         for j in range(0, len(self.rim)):
             pos_j = np.array(self.rim[j].state[0:2])
             dist_ij = np.sqrt(np.sum((pos_i - pos_j) ** 2))
@@ -504,6 +509,9 @@ class World:
                 new_ball_state = pos_i - pos_j
                 if (new_ball_state[1] >= new_ball_state[0]) and (new_ball_state[1] < -1*new_ball_state[0]):
                     self.ball.state[2] *= -1
+                    ballnum = getBallRandom()
+                    self.collision_sound = pygame.mixer.Sound('audio/pingpongsounds/pingpong' + str(ballnum) + '.mp3')
+                    self.collision_sound.set_volume(1)
                     self.collision_sound.play()
         return
 
@@ -520,19 +528,12 @@ def font_size(num):
 
 game_active = False
 start_time = 0
-
 playerNum = 0
 pygame.mixer.init()
 bg_music = pygame.mixer.Sound('audio/poolparty.mp3')
 bg_music.play(loops = -1)
 
 #Groups
-player = pygame.sprite.GroupSingle()
-player.add(Player(1))
-
-player2 = pygame.sprite.GroupSingle()
-player2.add(Player(2))
-
 cup_group = pygame.sprite.Group()
 world = World()
 
@@ -598,58 +599,10 @@ rule_active = False
 
 # ADD BELOW constant
 rule_pageNum = 1
-
 gravity_value = 4.9
 color = (0, 153, 76)
 text = 'Earth'
 prev_power_value = 0
-
-
-def start_single():
-    # game page initiations
-    start_time = int(pygame.time.get_ticks())
-    power = PowerBar()
-    
-    world.add_ball().set_pos([130, 470])
-    world.add_rim().set_pos([775, 525])
-    world.add_rim().set_pos([825, 525])
-    world.add_rim().set_pos([834, 525])
-    world.add_rim().set_pos([884, 525])
-    world.add_rim().set_pos([894, 525])
-    world.add_rim().set_pos([944, 525])
-    world.add_rim().set_pos([954, 525])
-    world.add_rim().set_pos([1004, 525])
-    world.add_rim().set_pos([1014, 525])
-    world.add_rim().set_pos([1064, 525])
-#                world.add_siderim().set_pos([780, 560])
-
-    cup_group.add(Cup(800))
-    cup_group.add(Cup(860))
-    cup_group.add(Cup(920))
-    cup_group.add(Cup(980))
-    cup_group.add(Cup(1040))
-
-def start_multi():
-    start_time = int(pygame.time.get_ticks())
-    
-    world.add_ball().set_pos([130, 470])
-    world.add_rim().set_pos([775, 525])
-    world.add_rim().set_pos([825, 525])
-    world.add_rim().set_pos([834, 525])
-    world.add_rim().set_pos([884, 525])
-    world.add_rim().set_pos([894, 525])
-    world.add_rim().set_pos([944, 525])
-    world.add_rim().set_pos([954, 525])
-    world.add_rim().set_pos([1004, 525])
-    world.add_rim().set_pos([1014, 525])
-    world.add_rim().set_pos([1064, 525])
-#                world.add_siderim().set_pos([780, 560])
-
-    cup_group.add(Cup(800))
-    cup_group.add(Cup(860))
-    cup_group.add(Cup(920))
-    cup_group.add(Cup(980))
-    cup_group.add(Cup(1040))
 
 # infinite loop for pygame, only terminates with exiting application
 while True:
@@ -660,10 +613,8 @@ while True:
             exit()
 
         # press return key to throw ball if on game page
-        
         if single_mode_active or multiplayer_mode_active:
             # display
-
             if event.type == pygame.KEYDOWN and event.key == pygame.K_c: 
                 gravity_value, level, levelpast, color = cameraOn(level, levelpast)
 
@@ -674,7 +625,7 @@ while True:
                 if voice_command_list[voice_command ] == 'planet':
                     gravity_value, level, levelpast, color = cameraOn(level, levelpast)
 
-            if msg_receieved and not is_voice:
+            elif msg_receieved and not is_voice:
                 # msg_receieved = 0
                 if prev_power_value == float(receieved_msg):
                     continue
@@ -702,9 +653,9 @@ while True:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r: 
                 rule_active = True
                 rule_pageNum = 1
-            if rule_active and event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT: 
+            if rule_active and rule_pageNum<3 and event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
                 rule_pageNum += 1
-            if rule_active and event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT: 
+            if rule_active and rule_pageNum>1 and event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
                 rule_pageNum -= 1
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_b:
                 score = 0
@@ -717,13 +668,63 @@ while True:
                 throw_num = 0
                 throw_num2 = 0
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                player = pygame.sprite.GroupSingle()
+                player.add(Player(1))
+                player2 = pygame.sprite.GroupSingle()
+                player2.add(Player(2))
+
                 single_mode_active = True
-                start_single()
+
+                # game page initiations
+                start_time = int(pygame.time.get_ticks())
                 power = PowerBar()
+
+                world.add_ball().set_pos([130, 470])
+                world.add_rim().set_pos([775, 525])
+                world.add_rim().set_pos([825, 525])
+                world.add_rim().set_pos([834, 525])
+                world.add_rim().set_pos([884, 525])
+                world.add_rim().set_pos([894, 525])
+                world.add_rim().set_pos([944, 525])
+                world.add_rim().set_pos([954, 525])
+                world.add_rim().set_pos([1004, 525])
+                world.add_rim().set_pos([1014, 525])
+                world.add_rim().set_pos([1064, 525])
+                world.add_siderim().set_pos([780, 560])
+
+                cup_group.add(Cup(800))
+                cup_group.add(Cup(860))
+                cup_group.add(Cup(920))
+                cup_group.add(Cup(980))
+                cup_group.add(Cup(1040))
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+                player = pygame.sprite.GroupSingle()
+                player.add(Player(1))
+                player2 = pygame.sprite.GroupSingle()
+                player2.add(Player(2))
+
                 multiplayer_mode_active = True
-                start_multi()
+                start_time = int(pygame.time.get_ticks())
                 power = PowerBar()
+
+                world.add_ball().set_pos([130, 470])
+                world.add_rim().set_pos([775, 525])
+                world.add_rim().set_pos([825, 525])
+                world.add_rim().set_pos([834, 525])
+                world.add_rim().set_pos([884, 525])
+                world.add_rim().set_pos([894, 525])
+                world.add_rim().set_pos([944, 525])
+                world.add_rim().set_pos([954, 525])
+                world.add_rim().set_pos([1004, 525])
+                world.add_rim().set_pos([1014, 525])
+                world.add_rim().set_pos([1064, 525])
+                world.add_siderim().set_pos([780, 560])
+
+                cup_group.add(Cup(800))
+                cup_group.add(Cup(860))
+                cup_group.add(Cup(920))
+                cup_group.add(Cup(980))
+                cup_group.add(Cup(1040))
 
             if msg_receieved and is_voice:
                 rule_active = False
@@ -732,13 +733,17 @@ while True:
                 voice_command = int(receieved_msg)
 
                 if voice_command_list[voice_command ] == 'single':
+                    player = pygame.sprite.GroupSingle()
+                    player.add(Player(1))
+                    player2 = pygame.sprite.GroupSingle()
+                    player2.add(Player(2))
+
                     single_mode_active = True
-                    start_single()
 
                     # game page initiations
                     start_time = int(pygame.time.get_ticks())
                     power = PowerBar()
-                    
+
                     world.add_ball().set_pos([130, 470])
                     world.add_rim().set_pos([775, 525])
                     world.add_rim().set_pos([825, 525])
@@ -750,7 +755,7 @@ while True:
                     world.add_rim().set_pos([1004, 525])
                     world.add_rim().set_pos([1014, 525])
                     world.add_rim().set_pos([1064, 525])
-    #                world.add_siderim().set_pos([780, 560])
+                    world.add_siderim().set_pos([780, 560])
 
                     cup_group.add(Cup(800))
                     cup_group.add(Cup(860))
@@ -759,12 +764,15 @@ while True:
                     cup_group.add(Cup(1040))
 
                 elif voice_command_list[voice_command ] == 'multi':
-                    msg_receieved = 0
+                    player = pygame.sprite.GroupSingle()
+                    player.add(Player(1))
+                    player2 = pygame.sprite.GroupSingle()
+                    player2.add(Player(2))
+
                     multiplayer_mode_active = True
-                    rule_active = False
                     start_time = int(pygame.time.get_ticks())
                     power = PowerBar()
-                    
+
                     world.add_ball().set_pos([130, 470])
                     world.add_rim().set_pos([775, 525])
                     world.add_rim().set_pos([825, 525])
@@ -776,15 +784,13 @@ while True:
                     world.add_rim().set_pos([1004, 525])
                     world.add_rim().set_pos([1014, 525])
                     world.add_rim().set_pos([1064, 525])
-    #                world.add_siderim().set_pos([780, 560])
+                    world.add_siderim().set_pos([780, 560])
 
                     cup_group.add(Cup(800))
                     cup_group.add(Cup(860))
                     cup_group.add(Cup(920))
                     cup_group.add(Cup(980))
                     cup_group.add(Cup(1040))
-                    
-                
 
     # update game page
     if single_mode_active:
@@ -794,17 +800,20 @@ while True:
         else:
             #pause background music and get new sky and level data
             bg_music.stop()
-            level, levelpast, sky_surface = getsky(level,levelpast, sky_surface, bg_music)
-
+            level_levels = getsky(level,levelpast, sky_surface, bg_music)
+            level = level_levels[0]
+            levelpast = level_levels[1]
+            sky_surface = level_levels[2]
+            bg_music=level_levels[3]
+            bg_music.play(loops = -1)
             screen.blit(sky_surface,(0,0))
+
         screen.blit(ground_surface,(0,600))
         
         # game page sprites
         player.draw(screen)
         player.update(False)
-        
         arrow = arrow(1)
-        
         power.draw(screen)
         world.draw(screen)
         cup_group.draw(screen)
@@ -833,24 +842,20 @@ while True:
         gravity_rect1 = gravity_surf1.get_rect(center = (900,190))
         screen.blit(gravity_surf,gravity_rect)
         screen.blit(gravity_surf1,gravity_rect1)
-            
+        
+        # instruction for changing planets
+        planet_switch = font_size(40).render(f'Press "C" to select a new planet',False,color)
+        planet_rect = planet_switch.get_rect(center = (900, 230))
+        screen.blit(planet_switch,planet_rect)
+        
         # if throwing
         if is_throw:
             world.update(power_value,gravity_value)
             power.move_bar((power_value * 25)/1.25+20)
-#            if world.ball.state[1]=520 and world.ball.state[0]-800<=20
-                
-#            for cup in cup_group:
-#                collide = world.ball.rect.colliderect(cup.rect)
-#                if collide:
-#                    cup.kill()
-#                    is_throw = False
-#                    power.reset()
-#                    world.ball.set_pos([130, 470])
+
             # if the ball is deleted
             if collision_sprite():
                 score_num += 1
-                
                 if len(cup_group) == 0:
                     single_mode_active = False
                
@@ -866,8 +871,12 @@ while True:
         else:
             #pause background music and get new sky and level data
             bg_music.stop()
-            level, levelpast, sky_surface = getsky(level,levelpast, sky_surface, bg_music)
-            # game page background
+            level_levels = getsky(level,levelpast, sky_surface, bg_music)
+            level = level_levels[0]
+            levelpast = level_levels[1]
+            sky_surface = level_levels[2]
+            bg_music=level_levels[3]
+            bg_music.play(loops = -1)
             screen.blit(sky_surface,(0,0))
         screen.blit(ground_surface,(0,600))
         
@@ -875,24 +884,19 @@ while True:
         player.draw(screen)
         if arrowNum == 1:
             player.update(False)
-            
-
         if arrowNum == 2:
             player2.update(False)
 
+        player.draw(screen)
         player2.draw(screen)
         power.draw(screen)
         world.draw(screen)
         cup_group.draw(screen)
-        
         score = display_score(score_num, 1)
         score2 = display_score(score_num2, 2)
-        
         playerNum = display_player(1)
         playerNum2 = display_player(2)
-        
         arrow = arrow(arrowNum)
-        
         throw = display_throw(throw_num, 1)
         throw2 = display_throw(throw_num2, 2)
         
@@ -917,6 +921,11 @@ while True:
         screen.blit(gravity_surf,gravity_rect)
         screen.blit(gravity_surf1,gravity_rect1)
         
+        # instruction for changing planets
+        planet_switch = font_size(40).render(f'Press "C" to select a new planet',False,color)
+        planet_rect = planet_switch.get_rect(center = (900, 230))
+        screen.blit(planet_switch,planet_rect)
+        
         # if throwing
         if is_throw:
             power.move_bar((power_value * 25)/1.25+20)
@@ -928,9 +937,8 @@ while True:
                     score_num += 1
                 else:
                     score_num2 += 1
-                
-            if len(cup_group) == 0:
-                multiplayer_mode_active = False
+                if len(cup_group) == 0:
+                    multiplayer_mode_active = False
 
             if world.update(power_value,gravity_value):
                 if arrowNum == 1:
@@ -943,9 +951,9 @@ while True:
                 is_throw = False
                 player2.update(True)
                 player.update(True)
-                
                 power.reset()
                 world.ball.set_pos([130, 470])
+                
     elif rule_active is True: 
         if rule_pageNum == 1: 
             screen.blit(rule_1_stand,rule_1_stand_rect)
@@ -957,19 +965,19 @@ while True:
      
     # on the restart page
     elif single_mode_active is False  and multiplayer_mode_active is False:
-     
+        cup_group.empty()
+        for i in world.rim:
+            world.rim.remove(i)
+            
         screen.fill((94,129,162))
         screen.blit(player_stand,player_stand_rect)
         
         if score != 0 and score2 == 0:
-      
             score_message = test_font.render(f'Your score:     # of cups made: {score_num}     # of throws: {throw_num}',False,BLACK)
             score_message_rect = score_message.get_rect(center = (450,330))
             screen.blit(game_name,game_name_rect)
             final_message = test_font.render(f'Press 0 to go back to main menu',False,BLACK)
             final_message_rect = score_message.get_rect(center = (450,400))
-            
-            
             screen.blit(score_message, score_message_rect)
             screen.blit(final_message,final_message_rect)
             
@@ -978,7 +986,6 @@ while True:
             score_message_rect1 = score_message1.get_rect(center = (450,330))
             score_message2 = test_font.render(f'Player 2 score:     # of cups made: {score_num2}     # of throws: {throw_num2}',False,BLACK)
             score_message_rect2 = score_message2.get_rect(center = (450,360))
-            
             screen.blit(score_message1,score_message_rect1)
             screen.blit(score_message2,score_message_rect2)
             final_message = test_font.render(f'Press 0 to go back to main menu',False,BLACK)
