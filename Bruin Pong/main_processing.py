@@ -12,7 +12,7 @@ import imutils
 import cv2
 import urllib 
 import time
-import speech_recognition as sr
+# import speech_recognition as sr
 
 import paho.mqtt.client as mqtt
 
