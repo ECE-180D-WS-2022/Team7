@@ -324,6 +324,7 @@ def arrow(num):
 #default levelpast is unchanged
 levelpast = 'unchanged'
 level = 'unchanged'
+levelNumber = 1
 
 def getRandom():
     if level == "Earth":
@@ -343,8 +344,12 @@ def getBallRandom():
     return rnd
 
 
-def getsky(level, levelpast, sky_surface, bg_music):
+def getsky(level, levelpast, sky_surface, bg_music, levelNumber):
     rnd = getRandom()
+    while(levelNumber == rnd):
+        rnd = getRandom()
+
+    levelNumber = rnd
     bg_music.stop()
     if levelpast == level:
         levelpast = 'unchanged'
@@ -364,7 +369,7 @@ def getsky(level, levelpast, sky_surface, bg_music):
         bg_music.stop()
         sky_surface = pygame.image.load('graphics/Levels/Venus/Venus' + str(rnd) + '.png').convert()
         bg_music = pygame.mixer.Sound('audio/Levels/Venus/Venus' + str(rnd) + '.mp3')
-    return level, levelpast, sky_surface, bg_music
+    return level, levelpast, sky_surface, bg_music, levelNumber
 
 
 class Rim(pygame.sprite.Sprite):
@@ -660,6 +665,7 @@ while True:
             level = level_levels[0]
             levelpast = level_levels[1]
             sky_surface = level_levels[2]
+            levelNumber = level_levels[4]
             bg_music=level_levels[3]
             bg_music.play(loops = -1)
             screen.blit(sky_surface,(0,0))
@@ -735,6 +741,7 @@ while True:
             level = level_levels[0]
             levelpast = level_levels[1]
             sky_surface = level_levels[2]
+            levelNumber = level_levels[4]
             bg_music=level_levels[3]
             bg_music.play(loops = -1)
             screen.blit(sky_surface,(0,0))
