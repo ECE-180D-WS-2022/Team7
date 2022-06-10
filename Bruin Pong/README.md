@@ -2,7 +2,7 @@
 This folder contains all of the files to actually run the game. 
 
 ### Files
-1. game.py
+1. bruinpong.py
     * pygame file generating graphics
 2. main_processing.py
     * localization, speech, communication processing
