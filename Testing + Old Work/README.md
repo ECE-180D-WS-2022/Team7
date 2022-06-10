@@ -12,4 +12,6 @@ This folder contains a lot of our initial testing and ideation.
 2. IMU_collect_throw_data
 3. test_bluetooth
 4. practice_jake
+5. practice
+6. send_imu_bluetooth
 
