@@ -6,6 +6,8 @@ We envision a remote, hands-on interactive game. Like cup pong, an easily access
 # Watch our demo!
 [Click here to watch Bruin Pong Demo!](https://drive.google.com/file/d/1O4liOGrI8zG2b1NHcZOKOwHesmZR23PQ/view?usp=share_link)
 
+# Read our report!
+[Click here to read our report!](https://docs.google.com/document/d/1jfC3a-Gcukk66NwrktGmK1JejSbYQbGqmWWevWEDknM/edit?usp=sharing)
 
 ### Team 7 Team Members:
 Mark Andal
