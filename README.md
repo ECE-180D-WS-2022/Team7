@@ -5,7 +5,7 @@ We envision a remote, hands-on interactive game. Like cup pong, an easily access
 
 # Watch our demo!
 Click here to watch our demo!
-[![Click here to watch Bruin Pong Demo!](https://drive.google.com/file/d/1-G8sLp8oLM2qTFK6JvTJva6hSVvQswDc/view?usp=sharing)
+[Click here to watch Bruin Pong Demo!](https://drive.google.com/file/d/1O4liOGrI8zG2b1NHcZOKOwHesmZR23PQ/view?usp=share_link)
 
 
 ### Team 7 Team Members:
